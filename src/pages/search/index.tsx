@@ -1,0 +1,37 @@
+import { useMutation } from '@tanstack/react-query'
+import { App } from 'antd'
+import { useState } from 'react'
+
+import { SearchResultsTable } from '@widgets/search-results'
+
+import { SearchForm } from '@features/search-ste'
+
+import { searchSte } from '@entities/ste'
+import type { SteItem, SearchRequest } from '@entities/ste'
+
+import { PageContainer } from '@shared/ui/PageContainer'
+
+export default function SearchPage() {
+  const { notification } = App.useApp()
+  const [results, setResults] = useState<SteItem[]>([])
+
+  const mutation = useMutation({
+    mutationFn: searchSte,
+    onSuccess: (data) => setResults(data.results),
+    onError: () =>
+      notification.error({
+        message: 'Ошибка поиска',
+        description: 'Не удалось выполнить поиск. Попробуйте позже.',
+      }),
+  })
+
+  return (
+    <PageContainer title="Поиск СТЕ">
+      <SearchForm
+        onSearch={(values: SearchRequest) => mutation.mutate(values)}
+        loading={mutation.isPending}
+      />
+      <SearchResultsTable data={results} loading={mutation.isPending} />
+    </PageContainer>
+  )
+}
