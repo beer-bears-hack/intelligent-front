@@ -38,7 +38,9 @@ export function CalculationSummary({ data, loading }: CalculationSummaryProps) {
           </Descriptions.Item>
           <Descriptions.Item label="Однородность">
             {data.is_homogeneous ? (
-              <Tag variant="outlined" color="green">Однородные</Tag>
+              <Tag variant="outlined" color="green">
+                Однородные
+              </Tag>
             ) : (
               <Tag color="red">Неоднородные</Tag>
             )}

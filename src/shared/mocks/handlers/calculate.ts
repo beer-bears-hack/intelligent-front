@@ -30,10 +30,7 @@ export const calculateHandlers = [
     }
 
     if (selectedPrices.length === 0) {
-      return HttpResponse.json(
-        { error: 'No prices selected' },
-        { status: 400 },
-      )
+      return HttpResponse.json({ error: 'No prices selected' }, { status: 400 })
     }
 
     const mean = selectedPrices.reduce((a, b) => a + b, 0) / selectedPrices.length

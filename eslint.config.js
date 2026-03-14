@@ -11,7 +11,7 @@ import importPlugin from 'eslint-plugin-import-x'
 const compat = new FlatCompat({ baseDirectory: import.meta.dirname })
 
 export default tseslint.config(
-  { ignores: ['dist', 'vite.config.ts'] },
+  { ignores: ['dist', 'dev-dist', 'public/mockServiceWorker.js', 'vite.config.ts'] },
 
   // Base JS
   js.configs.recommended,

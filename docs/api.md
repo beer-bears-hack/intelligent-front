@@ -163,7 +163,7 @@ Search for comparable items (STE).
 
 ## Prices
 
-### GET /ste/{steId}/prices
+### GET /stes/{steId}/prices
 
 Get price data for a specific STE item.
 

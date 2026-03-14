@@ -99,12 +99,18 @@ export function PriceTable({
       minWidth: 120,
       render: (_: unknown, record: TableRow) => {
         if (record.isManual) {
-          return <Tag variant="outlined" color="blue">Ручная</Tag>
+          return (
+            <Tag variant="outlined" color="blue">
+              Ручная
+            </Tag>
+          )
         }
         if (record.is_outlier) {
           return (
             <Tooltip title={record.reason}>
-              <Tag variant="outlined" color="red">Выброс</Tag>
+              <Tag variant="outlined" color="red">
+                Выброс
+              </Tag>
             </Tooltip>
           )
         }
