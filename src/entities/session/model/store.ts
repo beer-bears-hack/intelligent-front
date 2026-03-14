@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
-import { api } from '@shared/api/axiosInstance'
+import { api } from '@shared/api/axios-instance'
 import { SESSION_STORAGE_KEY } from '@shared/constants'
 
 interface SessionStore {
@@ -20,7 +20,6 @@ export const useSessionStore = create<SessionStore>()(
         const { sessionId, isCreating } = get()
         if (sessionId) return sessionId
         if (isCreating) {
-          // Wait for in-flight creation
           return new Promise<string>((resolve) => {
             const unsub = useSessionStore.subscribe((state) => {
               if (state.sessionId) {

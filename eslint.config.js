@@ -71,6 +71,7 @@ export default tseslint.config(
       'src/entities/**/*.{ts,tsx}',
       'src/features/**/*.{ts,tsx}',
       'src/widgets/**/*.{ts,tsx}',
+      'src/shared/mocks/**/*.{ts,tsx}',
     ],
     rules: {
       'import/no-internal-modules': 'off',

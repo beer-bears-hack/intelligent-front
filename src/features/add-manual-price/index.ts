@@ -1,1 +1,1 @@
-export { ManualPriceForm } from './ui/ManualPriceForm'
+export { ManualPriceForm } from './ui/manual-price-form'

@@ -26,7 +26,7 @@ api.interceptors.request.use((config) => {
       }
     }
   } catch {
-    // ignore parse errors
+    // ignore, but not panic
   }
   return config
 })

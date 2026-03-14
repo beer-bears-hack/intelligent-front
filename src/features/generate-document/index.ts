@@ -1,1 +1,1 @@
-export { GenerateDocForm } from './ui/GenerateDocForm'
+export { GenerateDocForm } from './ui/generate-doc-form'

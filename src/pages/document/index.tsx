@@ -9,7 +9,7 @@ import type { DocumentSettings } from '@entities/document'
 import { useSessionStore } from '@entities/session'
 
 import { downloadBlob } from '@shared/lib/download'
-import { PageContainer } from '@shared/ui/PageContainer'
+import { PageContainer } from '@shared/ui/page-container'
 
 export default function DocumentPage() {
   const { notification } = App.useApp()
@@ -51,7 +51,7 @@ export default function DocumentPage() {
             <Alert
               style={{ marginTop: 16 }}
               type="success"
-              message="Документ успешно сформирован"
+              title="Документ успешно сформирован"
               description="Файл загружен автоматически."
               showIcon
             />
@@ -60,7 +60,7 @@ export default function DocumentPage() {
       ) : (
         <Alert
           type="warning"
-          message="Сессия не найдена"
+          title="Сессия не найдена"
           description="Добавьте позиции в корзину перед формированием документа."
           showIcon
           action={<Button onClick={() => navigate('/search')}>Перейти к поиску</Button>}

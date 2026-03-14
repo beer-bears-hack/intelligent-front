@@ -1,2 +1,2 @@
 export type { SteItem, SearchRequest, SearchResponse } from './model/types'
-export { searchSte } from './api/searchSte'
+export { searchSte } from './api/search-ste'

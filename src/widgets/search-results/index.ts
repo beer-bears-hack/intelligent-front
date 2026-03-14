@@ -1,1 +1,1 @@
-export { SearchResultsTable } from './ui/SearchResultsTable'
+export { SearchResultsTable } from './ui/search-results-table'

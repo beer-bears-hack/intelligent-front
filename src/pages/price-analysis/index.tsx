@@ -17,7 +17,7 @@ import { getPrices } from '@entities/price'
 import type { ManualPrice } from '@entities/price'
 import { useSessionStore } from '@entities/session'
 
-import { PageContainer } from '@shared/ui/PageContainer'
+import { PageContainer } from '@shared/ui/page-container'
 
 const methodOptions = [
   { value: 'comparable_market_prices', label: 'Сопоставимые рыночные цены' },
@@ -160,9 +160,9 @@ export default function PriceAnalysisPage() {
         </div>
 
         <div style={{ flex: 1, minWidth: 280 }}>
-          <Space direction="vertical" style={{ width: '100%' }} size="middle">
+          <Space orientation="vertical" style={{ width: '100%' }} size="middle">
             <Card title="Параметры расчёта" size="small">
-              <Space direction="vertical" style={{ width: '100%' }}>
+              <Space orientation="vertical" style={{ width: '100%' }}>
                 <div>
                   <Typography.Text>Количество:</Typography.Text>
                   <InputNumber

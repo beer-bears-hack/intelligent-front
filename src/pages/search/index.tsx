@@ -9,7 +9,7 @@ import { SearchForm } from '@features/search-ste'
 import { searchSte } from '@entities/ste'
 import type { SteItem, SearchRequest } from '@entities/ste'
 
-import { PageContainer } from '@shared/ui/PageContainer'
+import { PageContainer } from '@shared/ui/page-container'
 
 export default function SearchPage() {
   const { notification } = App.useApp()
