@@ -19,6 +19,7 @@ interface TableRow {
   is_outlier: boolean
   reason?: string
   isManual: boolean
+  manualIndex?: number
 }
 
 interface PriceTableProps {
@@ -26,6 +27,8 @@ interface PriceTableProps {
   manualPrices: ManualPrice[]
   selectedIds: Set<number>
   onToggle: (id: number) => void
+  manualSelectedIndices: Set<number>
+  onToggleManual: (idx: number) => void
   loading: boolean
 }
 
@@ -34,6 +37,8 @@ export function PriceTable({
   manualPrices,
   selectedIds,
   onToggle,
+  manualSelectedIndices,
+  onToggleManual,
   loading,
 }: PriceTableProps) {
   const isMobile = useIsMobile()
@@ -56,6 +61,7 @@ export function PriceTable({
       source: mp.source,
       is_outlier: false,
       isManual: true,
+      manualIndex: idx,
     }))
 
     return [...apiRows, ...manualRows]
@@ -68,6 +74,8 @@ export function PriceTable({
         manualPrices={manualPrices}
         selectedIds={selectedIds}
         onToggle={onToggle}
+        manualSelectedIndices={manualSelectedIndices}
+        onToggleManual={onToggleManual}
         loading={loading}
       />
     )
@@ -80,7 +88,12 @@ export function PriceTable({
       width: 48,
       render: (_: unknown, record: TableRow) => {
         if (record.isManual) {
-          return <Checkbox checked disabled />
+          return (
+            <Checkbox
+              checked={manualSelectedIndices.has(record.manualIndex!)}
+              onChange={() => onToggleManual(record.manualIndex!)}
+            />
+          )
         }
         return (
           <Checkbox checked={selectedIds.has(record.key)} onChange={() => onToggle(record.key)} />

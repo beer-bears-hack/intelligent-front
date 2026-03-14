@@ -11,6 +11,7 @@ export function EllipsisWithTooltip({ text, maxWidth = 200, style }: EllipsisWit
   return (
     <Tooltip title={text}>
       <span
+        title=""
         style={{
           display: 'inline-block',
           maxWidth,

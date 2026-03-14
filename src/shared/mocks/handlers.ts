@@ -4,6 +4,7 @@ import { documentHandlers } from './handlers/documents'
 import { priceHandlers } from './handlers/prices'
 import { searchHandlers } from './handlers/search'
 import { sessionHandlers } from './handlers/sessions'
+import { steInfoHandlers } from './handlers/ste'
 
 export const handlers = [
   ...sessionHandlers,
@@ -12,4 +13,5 @@ export const handlers = [
   ...priceHandlers,
   ...calculateHandlers,
   ...documentHandlers,
+  ...steInfoHandlers,
 ]

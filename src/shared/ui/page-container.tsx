@@ -25,17 +25,38 @@ export function PageContainer({ title, tooltip, children }: PageContainerProps) 
   return (
     <div style={{ maxWidth: width, width: '100%', margin: '0 auto', padding: 24 }}>
       <Typography.Title level={2}>
-        {title}
-        {tooltip && (
-          <>
-            {' '}
-            <Tooltip title={tooltip}>
-              <QuestionCircleOutlined
-                style={{ color: '#8c8c8c', fontSize: 16, verticalAlign: 'middle' }}
-              />
-            </Tooltip>
-          </>
-        )}
+        {tooltip
+          ? (() => {
+              const lastSpace = title.lastIndexOf(' ')
+              if (lastSpace === -1) {
+                return (
+                  <span style={{ whiteSpace: 'nowrap' }}>
+                    {title}{' '}
+                    <Tooltip title={tooltip}>
+                      <QuestionCircleOutlined
+                        style={{ color: '#8c8c8c', fontSize: 16, verticalAlign: 'middle' }}
+                      />
+                    </Tooltip>
+                  </span>
+                )
+              }
+              const before = title.slice(0, lastSpace)
+              const lastWord = title.slice(lastSpace + 1)
+              return (
+                <>
+                  {before}{' '}
+                  <span style={{ whiteSpace: 'nowrap' }}>
+                    {lastWord}{' '}
+                    <Tooltip title={tooltip}>
+                      <QuestionCircleOutlined
+                        style={{ color: '#8c8c8c', fontSize: 16, verticalAlign: 'middle' }}
+                      />
+                    </Tooltip>
+                  </span>
+                </>
+              )
+            })()
+          : title}
       </Typography.Title>
       {children}
     </div>

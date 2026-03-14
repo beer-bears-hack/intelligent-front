@@ -39,3 +39,5 @@ export const categoriesResponseSchema = z.object({
 export const manufacturersResponseSchema = z.object({
   manufacturers: z.array(filterOptionSchema),
 })
+
+export const steDetailResponseSchema = steItemSchema

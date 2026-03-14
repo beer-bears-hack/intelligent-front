@@ -1,6 +1,17 @@
-import { PlusOutlined, ShoppingCartOutlined, QuestionCircleOutlined } from '@ant-design/icons'
+import { PlusOutlined, ProfileOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import { useQuery, useMutation } from '@tanstack/react-query'
-import { App, Button, Card, InputNumber, Select, Space, Tooltip, Typography } from 'antd'
+import {
+  App,
+  Button,
+  Card,
+  Descriptions,
+  InputNumber,
+  Select,
+  Space,
+  Spin,
+  Tooltip,
+  Typography,
+} from 'antd'
 import { useCallback, useMemo, useState } from 'react'
 import { useParams, useNavigate } from 'react-router'
 
@@ -10,22 +21,19 @@ import { PriceTable } from '@widgets/price-table'
 
 import { ManualPriceForm } from '@features/add-manual-price'
 import { addToCart } from '@features/add-to-cart'
-import { PriceFilters } from '@features/filter-prices'
 
 import { calculateItem } from '@entities/calculation'
 import type { CalculateItemResponse, CalculationMethod } from '@entities/calculation'
 import { getPrices } from '@entities/price'
 import type { ManualPrice } from '@entities/price'
 import { useSessionStore } from '@entities/session'
+import { getSte } from '@entities/ste'
 
+import { getErrorMessage } from '@shared/lib/get-error-message'
 import { useIsMobile } from '@shared/lib/use-is-mobile'
 import { PageContainer } from '@shared/ui/page-container'
 
-const methodOptions = [
-  { value: 'comparable_market_prices', label: 'Сопоставимые рыночные цены' },
-  { value: 'tariff', label: 'Тарифный метод' },
-  { value: 'cost', label: 'Затратный метод' },
-]
+import { METHOD_OPTIONS } from './model/constants'
 
 export default function PriceAnalysisPage() {
   const { steId } = useParams<{ steId: string }>()
@@ -34,24 +42,25 @@ export default function PriceAnalysisPage() {
   const ensureSession = useSessionStore((s) => s.ensureSession)
   const isMobile = useIsMobile()
 
-  // Filter state
-  const [region, setRegion] = useState('')
-  const [period, setPeriod] = useState(12)
-
-  // Selection & manual prices
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
   const [manualPrices, setManualPrices] = useState<ManualPrice[]>([])
+  const [manualSelectedIndices, setManualSelectedIndices] = useState<Set<number>>(new Set())
   const [manualModalOpen, setManualModalOpen] = useState(false)
 
-  // Calculation params
   const [quantity, setQuantity] = useState(1)
   const [method, setMethod] = useState<CalculationMethod>('comparable_market_prices')
   const [calcResult, setCalcResult] = useState<CalculateItemResponse | null>(null)
 
-  // Fetch prices
+  const steQuery = useQuery({
+    queryKey: ['ste', steId],
+    queryFn: () => getSte(steId!),
+    enabled: !!steId,
+  })
+
+  // Fetch prices (no region/period filters)
   const pricesQuery = useQuery({
-    queryKey: ['prices', steId, region, period],
-    queryFn: () => getPrices(steId!, { region: region || undefined, period }),
+    queryKey: ['prices', steId],
+    queryFn: () => getPrices(steId!),
     enabled: !!steId,
   })
 
@@ -83,10 +92,36 @@ export default function PriceAnalysisPage() {
     })
   }, [])
 
+  // Toggle manual price selection
+  const handleToggleManual = useCallback((idx: number) => {
+    setManualSelectedIndices((prev) => {
+      const next = new Set(prev)
+      if (next.has(idx)) {
+        next.delete(idx)
+      } else {
+        next.add(idx)
+      }
+      return next
+    })
+  }, [])
+
   // Add manual price
   const handleAddManualPrice = useCallback((p: ManualPrice) => {
-    setManualPrices((prev) => [...prev, p])
+    setManualPrices((prev) => {
+      const next = [...prev, p]
+      // Auto-select all manual indices
+      setManualSelectedIndices(new Set(next.map((_, i) => i)))
+      return next
+    })
   }, [])
+
+  // Filter manual prices by selected indices
+  const activeManualPrices = useMemo(
+    () => manualPrices.filter((_, idx) => manualSelectedIndices.has(idx)),
+    [manualPrices, manualSelectedIndices],
+  )
+
+  const isCalcDisabled = selectedIds.size === 0 && activeManualPrices.length === 0
 
   // Calculate
   const calcMutation = useMutation({
@@ -94,8 +129,12 @@ export default function PriceAnalysisPage() {
     onSuccess: (data) => {
       setCalcResult(data)
     },
-    onError: () => {
-      notification.error({ message: 'Ошибка расчёта' })
+    onError: (error) => {
+      notification.error({
+        message: 'Ошибка расчёта',
+        description: getErrorMessage(error),
+        duration: 5,
+      })
     },
   })
 
@@ -103,7 +142,7 @@ export default function PriceAnalysisPage() {
     calcMutation.mutate({
       quantity,
       selected_price_ids: [...selectedIds],
-      manual_prices: manualPrices.length > 0 ? manualPrices : undefined,
+      manual_prices: activeManualPrices.length > 0 ? activeManualPrices : undefined,
       method,
     })
   }
@@ -114,22 +153,30 @@ export default function PriceAnalysisPage() {
       const sid = await ensureSession()
       return addToCart(sid, {
         ste_id: steId ?? null,
-        name: `СТЕ ${steId}`,
+        name: steQuery.data?.name ?? `СТЕ ${steId}`,
         quantity,
         unit_price: calcResult!.unit_price,
         total_price: calcResult!.total_price,
         justification_data: {
           used_contract_ids: [...selectedIds],
-          manual_prices: manualPrices,
+          manual_prices: activeManualPrices,
         },
       })
     },
     onSuccess: () => {
-      notification.success({ message: 'Добавлено в корзину' })
+      notification.success({
+        message: 'Добавлено в заказ',
+        description: 'Перейдите в заказ для генерации документа',
+        duration: 2,
+      })
       void navigate('/cart')
     },
-    onError: () => {
-      notification.error({ message: 'Ошибка добавления в корзину' })
+    onError: (error) => {
+      notification.error({
+        message: 'Ошибка добавления в заказ',
+        description: getErrorMessage(error),
+        duration: 5,
+      })
     },
   })
 
@@ -142,12 +189,23 @@ export default function PriceAnalysisPage() {
       title="Анализ цен"
       tooltip="Выберите ценовые предложения и рассчитайте НМЦК выбранным методом"
     >
-      <PriceFilters
-        region={region}
-        period={period}
-        onRegionChange={setRegion}
-        onPeriodChange={setPeriod}
-      />
+      {steQuery.isLoading ? (
+        <div style={{ textAlign: 'center', padding: 24 }}>
+          <Spin />
+        </div>
+      ) : steQuery.data ? (
+        <Card size="small" style={{ marginBottom: 16 }}>
+          <Descriptions column={isMobile ? 1 : 2} size="small">
+            <Descriptions.Item label="Название">{steQuery.data.name}</Descriptions.Item>
+            <Descriptions.Item label="Категория">{steQuery.data.category}</Descriptions.Item>
+            {Object.entries(steQuery.data.characteristics).map(([key, value]) => (
+              <Descriptions.Item key={key} label={key}>
+                {String(value)}
+              </Descriptions.Item>
+            ))}
+          </Descriptions>
+        </Card>
+      ) : null}
 
       <PriceChart prices={prices} manualPrices={manualPrices} />
 
@@ -165,6 +223,8 @@ export default function PriceAnalysisPage() {
             manualPrices={manualPrices}
             selectedIds={selectedIds}
             onToggle={handleToggle}
+            manualSelectedIndices={manualSelectedIndices}
+            onToggleManual={handleToggleManual}
             loading={pricesQuery.isLoading}
           />
           <Space style={{ marginTop: 16 }}>
@@ -203,18 +263,22 @@ export default function PriceAnalysisPage() {
                     value={method}
                     onChange={setMethod}
                     style={{ width: '100%' }}
-                    options={methodOptions}
+                    options={METHOD_OPTIONS}
                   />
                 </div>
-                <Button
-                  type="primary"
-                  block
-                  onClick={handleCalculate}
-                  loading={calcMutation.isPending}
-                  disabled={selectedIds.size === 0 && manualPrices.length === 0}
-                >
-                  Рассчитать
-                </Button>
+                <Tooltip title={isCalcDisabled ? 'Выберите хотя бы одну цену' : undefined}>
+                  <span style={{ display: 'block' }}>
+                    <Button
+                      type="primary"
+                      block
+                      onClick={handleCalculate}
+                      loading={calcMutation.isPending}
+                      disabled={isCalcDisabled}
+                    >
+                      Рассчитать
+                    </Button>
+                  </span>
+                </Tooltip>
               </Space>
             </Card>
 
@@ -226,9 +290,9 @@ export default function PriceAnalysisPage() {
                 block
                 onClick={handleAddToCart}
                 loading={addToCartMutation.isPending}
-                icon={<ShoppingCartOutlined />}
+                icon={<ProfileOutlined />}
               >
-                Добавить в корзину
+                Добавить в заказ
               </Button>
             )}
           </Space>

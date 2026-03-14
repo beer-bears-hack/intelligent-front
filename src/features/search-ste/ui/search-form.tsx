@@ -75,6 +75,7 @@ export function SearchForm({ onSearch, loading }: SearchFormProps) {
               allowClear
               showSearch
               optionFilterProp="label"
+              notFoundContent="Не найдено"
               open={categoriesOpen}
               onOpenChange={(open) => {
                 setCategoriesOpen(open)
@@ -94,6 +95,7 @@ export function SearchForm({ onSearch, loading }: SearchFormProps) {
               allowClear
               showSearch
               optionFilterProp="label"
+              notFoundContent="Не найдено"
               open={manufacturersOpen}
               onOpenChange={(open) => {
                 setManufacturersOpen(open)

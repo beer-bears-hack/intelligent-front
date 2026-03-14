@@ -1,4 +1,4 @@
-import { SearchOutlined, ShoppingCartOutlined, FileTextOutlined } from '@ant-design/icons'
+import { SearchOutlined, ProfileOutlined } from '@ant-design/icons'
 import { useQuery } from '@tanstack/react-query'
 import { Badge } from 'antd'
 import type { ReactNode } from 'react'
@@ -14,8 +14,7 @@ interface TabItem {
 
 const tabs: TabItem[] = [
   { key: '/search', icon: <SearchOutlined />, label: 'Поиск' },
-  { key: '/cart', icon: <ShoppingCartOutlined />, label: 'Корзина' },
-  { key: '/document', icon: <FileTextOutlined />, label: 'Документ' },
+  { key: '/cart', icon: <ProfileOutlined />, label: 'Заказ' },
 ]
 
 export function BottomTabBar() {
