@@ -1,3 +1,5 @@
 dist
+dev-dist
+public/mockServiceWorker.js
 node_modules
 package-lock.json
