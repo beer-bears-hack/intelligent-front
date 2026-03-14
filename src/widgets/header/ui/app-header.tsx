@@ -1,14 +1,25 @@
 import { ShoppingCartOutlined, SearchOutlined, FileTextOutlined } from '@ant-design/icons'
 import { useQuery } from '@tanstack/react-query'
-import { Layout, Menu, Badge } from 'antd'
+import { Grid, Layout, Menu, Badge } from 'antd'
 import { useNavigate, useLocation } from 'react-router'
 
 import { useSessionStore, getSession } from '@entities/session'
+
+const { useBreakpoint } = Grid
+
+function getContainerWidth(screens: ReturnType<typeof useBreakpoint>): string {
+  if (screens.xxl) return '1600px'
+  if (screens.xl) return '1280px'
+  if (screens.lg) return '1024px'
+  if (screens.md) return '720px'
+  return '100%'
+}
 
 export function AppHeader() {
   const navigate = useNavigate()
   const location = useLocation()
   const sessionId = useSessionStore((s) => s.sessionId)
+  const screens = useBreakpoint()
 
   const { data: itemCount = 0 } = useQuery({
     queryKey: ['session', sessionId],
@@ -35,27 +46,34 @@ export function AppHeader() {
     <Layout.Header
       style={{
         display: 'flex',
-        alignItems: 'center',
-        padding: '0 24px',
-        background: '#fff',
+        justifyContent: 'center',
+        padding: 0,
+        background: '#E7EEF7',
       }}
     >
       <div
         style={{
-          cursor: 'pointer',
-          whiteSpace: 'nowrap',
+          display: 'flex',
+          alignItems: 'center',
+          maxWidth: getContainerWidth(screens),
+          width: '100%',
+          padding: '0 24px',
         }}
-        onClick={() => navigate('/search')}
       >
-        НМЦК Калькулятор
+        <img
+          src="/assets/logo.png"
+          alt="Портал Поставщиков"
+          style={{ height: 32, cursor: 'pointer', marginRight: 40 }}
+          onClick={() => navigate('/search')}
+        />
+        <Menu
+          mode="horizontal"
+          selectedKeys={[location.pathname]}
+          items={navItems}
+          onClick={({ key }) => navigate(key)}
+          style={{ flex: 1, border: 'none' }}
+        />
       </div>
-      <Menu
-        mode="horizontal"
-        selectedKeys={[location.pathname]}
-        items={navItems}
-        onClick={({ key }) => navigate(key)}
-        style={{ flex: 1, border: 'none' }}
-      />
     </Layout.Header>
   )
 }

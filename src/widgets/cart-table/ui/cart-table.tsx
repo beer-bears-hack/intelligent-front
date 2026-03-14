@@ -21,31 +21,32 @@ export function CartTable({ items, onEdit, onDelete, deletingId }: CartTableProp
       title: 'Наименование',
       dataIndex: 'name',
       key: 'name',
+      minWidth: 250,
     },
     {
       title: 'Количество',
       dataIndex: 'quantity',
       key: 'quantity',
-      width: 120,
+      minWidth: 120,
     },
     {
       title: 'Цена за ед.',
       dataIndex: 'unit_price',
       key: 'unit_price',
-      width: 160,
+      minWidth: 160,
       render: (value: number) => formatPrice(value),
     },
     {
       title: 'Итого',
       dataIndex: 'total_price',
       key: 'total_price',
-      width: 160,
+      minWidth: 160,
       render: (value: number) => formatPrice(value),
     },
     {
       title: 'Действия',
       key: 'actions',
-      width: 100,
+      minWidth: 100,
       render: (_, record) => (
         <Space>
           <Button icon={<EditOutlined />} size="small" onClick={() => onEdit(record)} />
@@ -65,6 +66,7 @@ export function CartTable({ items, onEdit, onDelete, deletingId }: CartTableProp
       rowKey="item_id"
       pagination={false}
       locale={{ emptyText: 'Корзина пуста' }}
+      scroll={{ x: 'max-content' }}
     />
   )
 }

@@ -19,3 +19,133 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* Input focus background */
+.ant-input:focus,
+.ant-input-focused,
+.ant-input-affix-wrapper-focused {
+  background-color: #E7EEF7;
+}
+
+/* Circular pagination — 40x40 items */
+.ant-pagination .ant-pagination-item {
+  border: none;
+  border-radius: 50%;
+  min-width: 40px;
+  height: 40px;
+  line-height: 40px;
+}
+
+.ant-pagination .ant-pagination-item-active {
+  background-color: #264B82;
+}
+
+.ant-pagination .ant-pagination-item-active a {
+  color: #FFFFFF;
+}
+
+.ant-pagination .ant-pagination-prev,
+.ant-pagination .ant-pagination-next {
+  min-width: 40px;
+  height: 40px;
+}
+
+.ant-pagination .ant-pagination-prev .ant-pagination-item-link,
+.ant-pagination .ant-pagination-next .ant-pagination-item-link {
+  border: 1px solid #D4DBE6;
+  border-radius: 50%;
+  color: #8C8C8C;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+}
+
+/* Pagination arrow icons: bolder, narrower */
+.ant-pagination .ant-pagination-prev .anticon,
+.ant-pagination .ant-pagination-next .anticon {
+  font-size: 12px;
+  font-weight: 700;
+  transform: scaleX(0.8);
+}
+
+/* Menu tabs: uppercase, letter-spacing, font-weight, transparent bg */
+.ant-menu-horizontal {
+  background: transparent;
+}
+
+.ant-menu-horizontal .ant-menu-item,
+.ant-menu-horizontal .ant-menu-submenu-title {
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+}
+
+/* Table header: prevent text wrapping */
+.ant-table-thead > tr > th {
+  white-space: nowrap;
+}
+
+/* Table sorting: gap between column title and sort icon */
+.ant-table-column-sorters {
+  gap: 8px;
+}
+
+/* Clickable row cursor */
+.ant-table-row-clickable {
+  cursor: pointer;
+}
+
+/* Menu active tab: thick underline inside the header, not at the very bottom edge */
+.ant-menu-horizontal .ant-menu-item::after {
+  inset-inline: 10px !important;
+  bottom: 2px !important;
+  border-bottom-width: 3px !important;
+}
+
+.ant-menu-horizontal .ant-menu-item:not(.ant-menu-item-selected)::after {
+  border-bottom-color: transparent !important;
+}
+
+/* Badge inside menu: inherit tab text color */
+.ant-menu-horizontal .ant-menu-item .ant-badge {
+  color: inherit;
+}
+
+/* Form validation: thicker error border */
+.ant-form-item-has-error .ant-input,
+.ant-form-item-has-error .ant-input-number,
+.ant-form-item-has-error .ant-input-affix-wrapper {
+  border-width: 3px !important;
+}
+
+/* Hide default error text under input — errors shown via tooltip instead */
+.tooltip-validated .ant-form-item-explain {
+  display: none;
+}
+
+/* Error tooltip (for FormItemWithTooltip) */
+.error-tooltip {
+  animation: errorTooltipFadeIn 0.25s ease-out;
+}
+
+@keyframes errorTooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.error-tooltip .ant-tooltip-inner {
+  background-color: #DB2B21;
+  color: #FFFFFF;
+}
+
+.error-tooltip .ant-tooltip-arrow::before {
+  background-color: #DB2B21;
+}

@@ -37,7 +37,7 @@ export function ManualPriceForm({ open, onClose, onAdd }: ManualPriceFormProps) 
       cancelText="Отмена"
       destroyOnClose
     >
-      <Form form={form} layout="vertical">
+      <Form form={form} layout="vertical" autoComplete="off">
         <Form.Item
           name="price"
           label="Цена"

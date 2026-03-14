@@ -24,36 +24,45 @@ export function SearchResultsTable({ data, loading }: SearchResultsTableProps) {
       dataIndex: 'name',
       key: 'name',
       ellipsis: true,
+      minWidth: 300,
     },
     {
       title: 'Категория',
       dataIndex: 'category',
       key: 'category',
-      width: 200,
+      minWidth: 200,
     },
     {
       title: 'Код КПГЗ',
       dataIndex: 'kpgz_code',
       key: 'kpgz_code',
-      width: 160,
+      minWidth: 160,
     },
     {
       title: 'Релевантность',
       dataIndex: 'similarity_score',
       key: 'similarity_score',
-      width: 140,
+      minWidth: 130,
+      align: 'center',
       sorter: (a, b) => a.similarity_score - b.similarity_score,
       defaultSortOrder: 'descend',
       render: (score: number) => (
-        <Tag color={getScoreColor(score)}>{(score * 100).toFixed(1)}%</Tag>
+        <Tag  variant="outlined" color={getScoreColor(score)}>{(score * 100).toFixed(1)}%</Tag>
       ),
     },
     {
       title: 'Действие',
       key: 'action',
-      width: 150,
+      minWidth: 130,
+      align: 'center',
       render: (_, record) => (
-        <Button type="link" onClick={() => navigate(`/price-analysis/${record.ste_id}`)}>
+        <Button
+          type="link"
+          onClick={(e) => {
+            e.stopPropagation()
+            void navigate(`/price-analysis/${record.ste_id}`)
+          }}
+        >
           Анализ цен
         </Button>
       ),
@@ -68,6 +77,11 @@ export function SearchResultsTable({ data, loading }: SearchResultsTableProps) {
       loading={loading}
       locale={{ emptyText: <Empty description="Нет результатов" /> }}
       pagination={{ pageSize: 10, showSizeChanger: true }}
+      scroll={{ x: 'max-content' }}
+      rowClassName={() => 'ant-table-row-clickable'}
+      onRow={(record) => ({
+        onClick: () => void navigate(`/price-analysis/${record.ste_id}`),
+      })}
     />
   )
 }
