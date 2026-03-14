@@ -19,6 +19,7 @@ export const useSessionStore = create<SessionStore>()(
       ensureSession: async () => {
         const { sessionId, isCreating } = get()
         if (sessionId) return sessionId
+
         if (isCreating) {
           return new Promise<string>((resolve) => {
             const unsub = useSessionStore.subscribe((state) => {
@@ -31,6 +32,7 @@ export const useSessionStore = create<SessionStore>()(
         }
 
         set({ isCreating: true })
+
         try {
           const { data } = await api.post<{ session_id: string }>('/sessions')
           set({ sessionId: data.session_id, isCreating: false })
