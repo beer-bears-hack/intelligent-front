@@ -19,8 +19,8 @@ jobs:
           
       - name: Deploy
         run: |          
-          docker-compose down
-          
+          docker-compose down 2>/dev/null || true          
+
           # Build and start
           if [ -n "${{ github.event.inputs.service }}" ]; then
             docker-compose up -d --build ${{ github.event.inputs.service }}
