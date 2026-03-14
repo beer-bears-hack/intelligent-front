@@ -3,5 +3,5 @@ export type {
   GenerateDocumentResponse,
   DocumentSettings,
 } from './model/types'
-export { generateDocument } from './api/generateDocument'
-export { downloadDocument } from './api/downloadDocument'
+export { generateDocument } from './api/generate-document'
+export { downloadDocument } from './api/download-document'

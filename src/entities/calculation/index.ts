@@ -1,2 +1,2 @@
 export type { CalculateItemRequest, CalculateItemResponse, CalculationMethod } from './model/types'
-export { calculateItem } from './api/calculateItem'
+export { calculateItem } from './api/calculate-item'

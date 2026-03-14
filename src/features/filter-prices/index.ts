@@ -1,1 +1,1 @@
-export { PriceFilters } from './ui/PriceFilters'
+export { PriceFilters } from './ui/price-filters'

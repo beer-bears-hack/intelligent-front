@@ -25,11 +25,18 @@ const baseTheme: ThemeConfig = {
   },
   components: {
     Typography: {
-      titleMarginBottom: 0,
+      titleMarginBottom: 24,
+      fontWeightStrong: 700,
     },
     Button: {
       colorPrimaryBorder: '#264B82',
       defaultBorderColor: '#D4DBE6',
+      defaultHoverBorderColor: '#264B82',
+      borderRadius: 0,
+    },
+    Input: {
+      borderRadius: 0,
+      controlHeightLG: 64,
     },
     Tag: {
       colorPrimary: '#264B82',

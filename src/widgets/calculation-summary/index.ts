@@ -1,1 +1,1 @@
-export { CalculationSummary } from './ui/CalculationSummary'
+export { CalculationSummary } from './ui/calculation-summary'

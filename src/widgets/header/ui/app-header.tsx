@@ -42,9 +42,6 @@ export function AppHeader() {
     >
       <div
         style={{
-          fontWeight: 700,
-          fontSize: 18,
-          marginRight: 32,
           cursor: 'pointer',
           whiteSpace: 'nowrap',
         }}

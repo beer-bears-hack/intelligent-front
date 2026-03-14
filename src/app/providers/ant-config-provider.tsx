@@ -18,11 +18,8 @@ function ThemedProvider({ children }: { children: ReactNode }) {
   )
 }
 
-export function AntConfigProvider({ children }: { children: ReactNode }) {
-  // Outer ConfigProvider needed for useBreakpoint to work
-  return (
-    <ConfigProvider>
-      <ThemedProvider>{children}</ThemedProvider>
-    </ConfigProvider>
-  )
-}
+export const AntConfigProvider = ({ children }: { children: ReactNode }) => (
+  <ConfigProvider>
+    <ThemedProvider>{children}</ThemedProvider>
+  </ConfigProvider>
+)

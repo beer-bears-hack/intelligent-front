@@ -1,4 +1,4 @@
-import { api } from '@shared/api/axiosInstance'
+import { api } from '@shared/api/axios-instance'
 
 export async function updateItem(
   sessionId: string,

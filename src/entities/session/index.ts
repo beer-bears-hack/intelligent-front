@@ -6,6 +6,6 @@ export type {
   AddItemResponse,
 } from './model/types'
 export { useSessionStore } from './model/store'
-export { getSession } from './api/getSession'
-export { updateItem } from './api/updateItem'
-export { deleteItem } from './api/deleteItem'
+export { getSession } from './api/get-session'
+export { updateItem } from './api/update-item'
+export { deleteItem } from './api/delete-item'

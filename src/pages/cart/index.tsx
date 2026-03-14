@@ -12,7 +12,7 @@ import type { CartItem } from '@entities/session'
 import { useSessionStore, getSession, updateItem, deleteItem } from '@entities/session'
 
 import { formatPrice } from '@shared/lib/format'
-import { PageContainer } from '@shared/ui/PageContainer'
+import { PageContainer } from '@shared/ui/page-container'
 
 export default function CartPage() {
   const navigate = useNavigate()
