@@ -1,44 +1,28 @@
 <div align="center">
 
-<img src="docs/preview.png" alt="НМЦК Калькулятор — BeersBears" width="100%" />
-
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)](https://react.dev)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
-[![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)](https://vitejs.dev)
 [![Ant Design](https://img.shields.io/badge/Ant_Design-6-0170FE?logo=antdesign&logoColor=white)](https://ant.design)
-[![Zustand](https://img.shields.io/badge/Zustand-5-433D37?logo=zustand)](https://zustand.docs.pmnd.rs)
-[![TanStack Query](https://img.shields.io/badge/TanStack_Query-5-FF4154?logo=reactquery&logoColor=white)](https://tanstack.com/query)
 [![PWA](https://img.shields.io/badge/PWA-Ready-5A0FC8?logo=pwa&logoColor=white)](#)
 [![Docker](https://img.shields.io/badge/Docker-Multi--stage-2496ED?logo=docker&logoColor=white)](#cicd--deploy)
+
+<img src="docs/preview.png" alt="НМЦК Калькулятор — BeersBears" width="100%" />
 
 </div>
 
 ---
 
-## 📊 Покрытие критериев оценки
-
-| # | Критерий | Баллы | Покрытие | Реализация |
-|:-:|----------|:-----:|:--------:|------------|
-| 1 | **Точность расчёта НМЦК и обоснование** | 35 | ✅ | Расчёт средней, медианы, коэфф. вариации; автоматическое обоснование |
-| 2 | **Точность поиска и релевантность аналогов** | 25 | ✅ | Поиск по СТЕ с фильтрами категории и производителя |
-| 3 | **Фильтрация, ранжирование, выбросы** | 20 | ✅ | Фильтры по региону/периоду, детекция выбросов, графики цен |
-| 4 | **Удобство интерфейса** | 10 | ✅ | Адаптивный UI, PWA, мобильная версия, bottom tab bar |
-| 5 | **Ручной ввод + генерация DOCX** | 10 | ✅ | Ручное добавление цен, экспорт обоснования в DOCX |
-
----
-
-## 🏗 Архитектура — Feature-Sliced Design
+## Архитектура — Feature-Sliced Design
 
 ```mermaid
 graph TD
-    subgraph pages["📄 Pages"]
+    subgraph pages["Pages"]
         P1[SearchPage]
         P2[PriceAnalysisPage]
         P3[CartPage]
         P4[DocumentPage]
     end
 
-    subgraph widgets["🧩 Widgets"]
+    subgraph widgets["Widgets"]
         W1[AppHeader / BottomTabBar]
         W2[SearchResults]
         W3[PriceTable / PriceChart]
@@ -46,7 +30,7 @@ graph TD
         W5[CalculationSummary]
     end
 
-    subgraph features["⚙️ Features"]
+    subgraph features["Features"]
         F1[search-ste]
         F2[filter-prices]
         F3[add-to-cart]
@@ -55,7 +39,7 @@ graph TD
         F6[generate-document]
     end
 
-    subgraph entities["📦 Entities"]
+    subgraph entities["Entities"]
         E1[ste]
         E2[price]
         E3[calculation]
@@ -63,7 +47,7 @@ graph TD
         E5[session]
     end
 
-    subgraph shared["🔧 Shared"]
+    subgraph shared["Shared"]
         S1[UI components]
         S2[API client]
         S3[Contracts / Zod]
@@ -75,7 +59,7 @@ graph TD
 
 ---
 
-## 🛠 Стек технологий
+## Стек технологий
 
 | Категория | Технология | Назначение |
 |-----------|-----------|------------|
@@ -94,7 +78,7 @@ graph TD
 
 ---
 
-## 📁 Структура проекта (FSD)
+## Структура проекта (FSD)
 
 ```
 src/
@@ -138,22 +122,22 @@ src/
 
 ---
 
-## 🔄 Пользовательский сценарий
+## Пользовательский сценарий
 
 ```mermaid
 flowchart LR
-    A["🔍 Поиск СТЕ"] --> B["📊 Анализ цен"]
-    B --> C["🛒 Корзина"]
-    C --> D["📄 Генерация DOCX"]
+    A["Поиск СТЕ"] --> B["Анализ цен"]
+    B --> C["Заказы"]
+    C --> D["Генерация документа"]
 
-    B -->|"Фильтрация по региону,\nпериоду, выбросам"| B
+    B -->|"Фильтрация по региону,\nхарактеристикам, выбросам"| B
     B -->|"Ручной ввод цены"| B
     C -->|"Редактирование\nколичества"| C
 ```
 
 ---
 
-## ✨ Ключевые возможности
+## Ключевые возможности
 
 - **Умный поиск СТЕ** — фильтры по категории и производителю, релевантное ранжирование
 - **Анализ цен** — таблица + график, фильтрация по региону и периоду, детекция выбросов
@@ -165,7 +149,7 @@ flowchart LR
 
 ---
 
-## 🚀 CI/CD & Deploy
+## CI/CD & Deploy
 
 ```
 Docker multi-stage build:
@@ -176,7 +160,7 @@ Docker multi-stage build:
 
 ---
 
-## ⚡ Быстрый старт
+## Быстрый старт
 
 ```bash
 # Локальная разработка
