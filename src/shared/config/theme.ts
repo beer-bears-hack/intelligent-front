@@ -121,14 +121,17 @@ export function getPortalTheme(isMobile: boolean): ThemeConfig {
       Input: {
         ...baseTheme.components?.Input,
         controlHeight: inputHeight,
+        ...(isMobile && { fontSize: 16 }),
       },
       InputNumber: {
         ...baseTheme.components?.InputNumber,
         controlHeight: inputHeight,
+        ...(isMobile && { fontSize: 16 }),
       },
       Select: {
         ...baseTheme.components?.Select,
         controlHeight: inputHeight,
+        ...(isMobile && { fontSize: 16 }),
       },
     },
   }

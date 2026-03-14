@@ -43,7 +43,10 @@ export default function DocumentPage() {
   }
 
   return (
-    <PageContainer title="Формирование документа">
+    <PageContainer
+      title="Формирование документа"
+      tooltip="Настройте параметры и сформируйте документ обоснования НМЦК в формате DOCX"
+    >
       {sessionId ? (
         <div style={{ maxWidth: 600 }}>
           <GenerateDocForm onGenerate={handleGenerate} loading={mutation.isPending} />

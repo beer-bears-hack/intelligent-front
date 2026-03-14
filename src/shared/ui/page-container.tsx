@@ -1,10 +1,12 @@
-import { Grid, Typography } from 'antd'
+import { QuestionCircleOutlined } from '@ant-design/icons'
+import { Grid, Tooltip, Typography } from 'antd'
 import type { ReactNode } from 'react'
 
 const { useBreakpoint } = Grid
 
 interface PageContainerProps {
   title: string
+  tooltip?: string
   children?: ReactNode
 }
 
@@ -16,13 +18,25 @@ function getContainerWidth(screens: ReturnType<typeof useBreakpoint>): string {
   return '100%'
 }
 
-export function PageContainer({ title, children }: PageContainerProps) {
+export function PageContainer({ title, tooltip, children }: PageContainerProps) {
   const screens = useBreakpoint()
   const width = getContainerWidth(screens)
 
   return (
     <div style={{ maxWidth: width, width: '100%', margin: '0 auto', padding: 24 }}>
-      <Typography.Title level={2}>{title}</Typography.Title>
+      <Typography.Title level={2}>
+        {title}
+        {tooltip && (
+          <>
+            {' '}
+            <Tooltip title={tooltip}>
+              <QuestionCircleOutlined
+                style={{ color: '#8c8c8c', fontSize: 16, verticalAlign: 'middle' }}
+              />
+            </Tooltip>
+          </>
+        )}
+      </Typography.Title>
       {children}
     </div>
   )

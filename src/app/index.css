@@ -149,3 +149,49 @@ body {
 .error-tooltip .ant-tooltip-arrow::before {
   background-color: #db2b21;
 }
+
+/* Bottom tab bar */
+.bottom-tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 56px;
+  background: #ffffff;
+  border-top: 1px solid #d4dbe6;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.bottom-tab-bar__tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  gap: 2px;
+  border: none;
+  background: none;
+  padding: 6px 0;
+  cursor: pointer;
+  color: #8c8c8c;
+  font-size: 11px;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bottom-tab-bar__tab--active {
+  color: #264b82;
+}
+
+.bottom-tab-bar__icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.bottom-tab-bar__label {
+  font-weight: 600;
+}

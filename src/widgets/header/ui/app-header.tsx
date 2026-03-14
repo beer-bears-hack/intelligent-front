@@ -1,9 +1,11 @@
-import { ShoppingCartOutlined, SearchOutlined, FileTextOutlined } from '@ant-design/icons'
+import { SearchOutlined, ShoppingCartOutlined, FileTextOutlined } from '@ant-design/icons'
 import { useQuery } from '@tanstack/react-query'
 import { Grid, Layout, Menu, Badge } from 'antd'
 import { useNavigate, useLocation } from 'react-router'
 
 import { useSessionStore, getSession } from '@entities/session'
+
+import { useIsMobile } from '@shared/lib/use-is-mobile'
 
 const { useBreakpoint } = Grid
 
@@ -20,6 +22,7 @@ export function AppHeader() {
   const location = useLocation()
   const sessionId = useSessionStore((s) => s.sessionId)
   const screens = useBreakpoint()
+  const isMobile = useIsMobile()
 
   const { data: itemCount = 0 } = useQuery({
     queryKey: ['session', sessionId],
@@ -49,6 +52,8 @@ export function AppHeader() {
         justifyContent: 'center',
         padding: 0,
         background: '#E7EEF7',
+        overflow: 'hidden',
+        maxWidth: '100vw',
       }}
     >
       <div
@@ -66,13 +71,15 @@ export function AppHeader() {
           style={{ height: 32, cursor: 'pointer', marginRight: 40 }}
           onClick={() => navigate('/search')}
         />
-        <Menu
-          mode="horizontal"
-          selectedKeys={[location.pathname]}
-          items={navItems}
-          onClick={({ key }) => navigate(key)}
-          style={{ flex: 1, border: 'none' }}
-        />
+        {!isMobile && (
+          <Menu
+            mode="horizontal"
+            selectedKeys={[location.pathname]}
+            items={navItems}
+            onClick={({ key }) => navigate(key)}
+            style={{ flex: 1, border: 'none' }}
+          />
+        )}
       </div>
     </Layout.Header>
   )
