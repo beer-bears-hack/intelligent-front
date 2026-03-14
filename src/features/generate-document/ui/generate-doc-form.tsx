@@ -3,6 +3,8 @@ import { Button, Card, Checkbox, Form, Input } from 'antd'
 
 import type { DocumentSettings } from '@entities/document'
 
+import { FormItemWithTooltip } from '@/shared/ui/form-item-with-tooltip'
+
 interface GenerateDocFormProps {
   onGenerate: (settings: DocumentSettings) => void
   loading: boolean
@@ -22,14 +24,15 @@ export function GenerateDocForm({ onGenerate, loading }: GenerateDocFormProps) {
         layout="vertical"
         onFinish={handleFinish}
         initialValues={{ include_cover_page: true, signer_name: '' }}
+        autoComplete="off"
       >
-        <Form.Item
+        <FormItemWithTooltip
           label="ФИО подписанта"
           name="signer_name"
           rules={[{ required: true, message: 'Введите ФИО подписанта' }]}
         >
-          <Input placeholder="Иванов И.И." />
-        </Form.Item>
+          <Input placeholder="Иванов И.И." autoComplete="off" />
+        </FormItemWithTooltip>
 
         <Form.Item name="include_cover_page" valuePropName="checked">
           <Checkbox>Включить титульную страницу</Checkbox>

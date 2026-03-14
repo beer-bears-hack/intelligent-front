@@ -3,7 +3,6 @@ import { Suspense } from 'react'
 import { RouterProvider as ReactRouterProvider } from 'react-router'
 
 import { router } from '@app/router'
-import { FullscreenOutlined } from '@ant-design/icons'
 
 export function RouterProvider() {
   return (

@@ -72,12 +72,14 @@ export function PriceTable({
     {
       title: 'Цена',
       dataIndex: 'price',
+      minWidth: 140,
       sorter: (a: TableRow, b: TableRow) => a.price - b.price,
       render: (value: number) => formatPrice(value),
     },
     {
       title: 'Дата',
       dataIndex: 'date',
+      minWidth: 130,
       sorter: (a: TableRow, b: TableRow) => {
         if (!a.date) return 1
         if (!b.date) return -1
@@ -89,19 +91,20 @@ export function PriceTable({
       title: 'Источник',
       dataIndex: 'source',
       ellipsis: true,
+      minWidth: 200,
     },
     {
       title: 'Статус',
       dataIndex: 'is_outlier',
-      width: 120,
+      minWidth: 120,
       render: (_: unknown, record: TableRow) => {
         if (record.isManual) {
-          return <Tag color="blue">Ручная</Tag>
+          return <Tag variant="outlined" color="blue">Ручная</Tag>
         }
         if (record.is_outlier) {
           return (
             <Tooltip title={record.reason}>
-              <Tag color="red">Выброс</Tag>
+              <Tag variant="outlined" color="red">Выброс</Tag>
             </Tooltip>
           )
         }
@@ -119,6 +122,7 @@ export function PriceTable({
       size="small"
       rowClassName={(record) => (record.is_outlier && !record.isManual ? 'price-row-outlier' : '')}
       style={{ marginTop: 16 }}
+      scroll={{ x: 'max-content' }}
     />
   )
 }
