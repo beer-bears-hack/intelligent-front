@@ -7,6 +7,10 @@ import { DeleteItemButton } from '@features/manage-cart-item'
 import type { CartItem } from '@entities/session'
 
 import { formatPrice } from '@shared/lib/format'
+import { useIsMobile } from '@shared/lib/use-is-mobile'
+import { EllipsisWithTooltip } from '@shared/ui/ellipsis-with-tooltip'
+
+import { CartCardList } from './cart-card-list'
 
 interface CartTableProps {
   items: CartItem[]
@@ -16,12 +20,21 @@ interface CartTableProps {
 }
 
 export function CartTable({ items, onEdit, onDelete, deletingId }: CartTableProps) {
+  const isMobile = useIsMobile()
+
+  if (isMobile) {
+    return (
+      <CartCardList items={items} onEdit={onEdit} onDelete={onDelete} deletingId={deletingId} />
+    )
+  }
+
   const columns: ColumnsType<CartItem> = [
     {
       title: 'Наименование',
       dataIndex: 'name',
       key: 'name',
       minWidth: 250,
+      render: (text: string) => <EllipsisWithTooltip text={text} maxWidth={450} />,
     },
     {
       title: 'Количество',

@@ -26,7 +26,10 @@ export default function SearchPage() {
   })
 
   return (
-    <PageContainer title="Поиск СТЕ">
+    <PageContainer
+      title="Поиск СТЕ"
+      tooltip="Найдите аналогичные товары и услуги для обоснования начальной цены контракта"
+    >
       <SearchForm
         onSearch={(values: SearchRequest) => mutation.mutate(values)}
         loading={mutation.isPending}

@@ -6,6 +6,10 @@ import { useMemo } from 'react'
 import type { PriceEntry, ManualPrice } from '@entities/price'
 
 import { formatPrice } from '@shared/lib/format'
+import { useIsMobile } from '@shared/lib/use-is-mobile'
+import { EllipsisWithTooltip } from '@shared/ui/ellipsis-with-tooltip'
+
+import { PriceCardList } from './price-card-list'
 
 interface TableRow {
   key: number
@@ -32,6 +36,8 @@ export function PriceTable({
   onToggle,
   loading,
 }: PriceTableProps) {
+  const isMobile = useIsMobile()
+
   const dataSource = useMemo<TableRow[]>(() => {
     const apiRows: TableRow[] = prices.map((p) => ({
       key: p.id,
@@ -54,6 +60,18 @@ export function PriceTable({
 
     return [...apiRows, ...manualRows]
   }, [prices, manualPrices])
+
+  if (isMobile) {
+    return (
+      <PriceCardList
+        prices={prices}
+        manualPrices={manualPrices}
+        selectedIds={selectedIds}
+        onToggle={onToggle}
+        loading={loading}
+      />
+    )
+  }
 
   const columns: ColumnsType<TableRow> = [
     {
@@ -90,8 +108,8 @@ export function PriceTable({
     {
       title: 'Источник',
       dataIndex: 'source',
-      ellipsis: true,
       minWidth: 200,
+      render: (text: string) => <EllipsisWithTooltip text={text} maxWidth={350} />,
     },
     {
       title: 'Статус',

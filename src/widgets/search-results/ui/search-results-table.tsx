@@ -4,6 +4,11 @@ import { useNavigate } from 'react-router'
 
 import type { SteItem } from '@entities/ste'
 
+import { useIsMobile } from '@shared/lib/use-is-mobile'
+import { EllipsisWithTooltip } from '@shared/ui/ellipsis-with-tooltip'
+
+import { SearchResultsCardList } from './search-results-card-list'
+
 interface SearchResultsTableProps {
   data: SteItem[]
   loading: boolean
@@ -17,26 +22,26 @@ function getScoreColor(score: number): string {
 
 export function SearchResultsTable({ data, loading }: SearchResultsTableProps) {
   const navigate = useNavigate()
+  const isMobile = useIsMobile()
+
+  if (isMobile) {
+    return <SearchResultsCardList data={data} loading={loading} />
+  }
 
   const columns: ColumnsType<SteItem> = [
     {
       title: 'Наименование',
       dataIndex: 'name',
       key: 'name',
-      ellipsis: true,
       minWidth: 300,
+      render: (text: string) => <EllipsisWithTooltip text={text} maxWidth={500} />,
     },
     {
       title: 'Категория',
       dataIndex: 'category',
       key: 'category',
       minWidth: 200,
-    },
-    {
-      title: 'Код КПГЗ',
-      dataIndex: 'kpgz_code',
-      key: 'kpgz_code',
-      minWidth: 160,
+      render: (text: string) => <EllipsisWithTooltip text={text} maxWidth={300} />,
     },
     {
       title: 'Релевантность',
@@ -78,7 +83,7 @@ export function SearchResultsTable({ data, loading }: SearchResultsTableProps) {
       rowKey="ste_id"
       loading={loading}
       locale={{ emptyText: <Empty description="Нет результатов" /> }}
-      pagination={{ pageSize: 10, showSizeChanger: true }}
+      pagination={{ pageSize: 10, showSizeChanger: false }}
       scroll={{ x: 'max-content' }}
       rowClassName={() => 'ant-table-row-clickable'}
       onRow={(record) => ({

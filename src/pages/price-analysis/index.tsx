@@ -1,10 +1,11 @@
-import { PlusOutlined, ShoppingCartOutlined } from '@ant-design/icons'
+import { PlusOutlined, ShoppingCartOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import { useQuery, useMutation } from '@tanstack/react-query'
-import { App, Button, Card, InputNumber, Select, Space, Typography } from 'antd'
+import { App, Button, Card, InputNumber, Select, Space, Tooltip, Typography } from 'antd'
 import { useCallback, useMemo, useState } from 'react'
 import { useParams, useNavigate } from 'react-router'
 
 import { CalculationSummary } from '@widgets/calculation-summary'
+import { PriceChart } from '@widgets/price-chart'
 import { PriceTable } from '@widgets/price-table'
 
 import { ManualPriceForm } from '@features/add-manual-price'
@@ -17,6 +18,7 @@ import { getPrices } from '@entities/price'
 import type { ManualPrice } from '@entities/price'
 import { useSessionStore } from '@entities/session'
 
+import { useIsMobile } from '@shared/lib/use-is-mobile'
 import { PageContainer } from '@shared/ui/page-container'
 
 const methodOptions = [
@@ -30,6 +32,7 @@ export default function PriceAnalysisPage() {
   const navigate = useNavigate()
   const { notification } = App.useApp()
   const ensureSession = useSessionStore((s) => s.ensureSession)
+  const isMobile = useIsMobile()
 
   // Filter state
   const [region, setRegion] = useState('')
@@ -135,7 +138,10 @@ export default function PriceAnalysisPage() {
   }
 
   return (
-    <PageContainer title="Анализ цен">
+    <PageContainer
+      title="Анализ цен"
+      tooltip="Выберите ценовые предложения и рассчитайте НМЦК выбранным методом"
+    >
       <PriceFilters
         region={region}
         period={period}
@@ -143,8 +149,17 @@ export default function PriceAnalysisPage() {
         onPeriodChange={setPeriod}
       />
 
-      <div style={{ display: 'flex', gap: 16, marginTop: 16 }}>
-        <div style={{ flex: 2, minWidth: 0 }}>
+      <PriceChart prices={prices} manualPrices={manualPrices} />
+
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: isMobile ? 'column' : 'row',
+          gap: 16,
+          marginTop: 16,
+        }}
+      >
+        <div style={isMobile ? undefined : { flex: 2, minWidth: 0 }}>
           <PriceTable
             prices={prices}
             manualPrices={manualPrices}
@@ -159,9 +174,19 @@ export default function PriceAnalysisPage() {
           </Space>
         </div>
 
-        <div style={{ flex: 1, minWidth: 280 }}>
+        <div style={isMobile ? undefined : { flex: 1, minWidth: 280 }}>
           <Space orientation="vertical" style={{ width: '100%' }} size="middle">
-            <Card title="Параметры расчёта" size="small">
+            <Card
+              title={
+                <span>
+                  Параметры расчёта{' '}
+                  <Tooltip title="Укажите количество и метод для расчёта НМЦК">
+                    <QuestionCircleOutlined style={{ color: '#8c8c8c', fontSize: 14 }} />
+                  </Tooltip>
+                </span>
+              }
+              size="small"
+            >
               <Space orientation="vertical" style={{ width: '100%' }}>
                 <div>
                   <Typography.Text>Количество:</Typography.Text>

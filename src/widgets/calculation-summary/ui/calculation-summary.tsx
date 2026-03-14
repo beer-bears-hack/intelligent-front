@@ -1,4 +1,5 @@
-import { Card, Descriptions, Spin, Tag, Typography } from 'antd'
+import { QuestionCircleOutlined } from '@ant-design/icons'
+import { Card, Descriptions, Spin, Tag, Tooltip, Typography } from 'antd'
 
 import type { CalculateItemResponse } from '@entities/calculation'
 
@@ -31,7 +32,16 @@ export function CalculationSummary({ data, loading }: CalculationSummaryProps) {
           <Descriptions.Item label="Диапазон цен">
             {formatPrice(data.price_range.min)} — {formatPrice(data.price_range.max)}
           </Descriptions.Item>
-          <Descriptions.Item label="Коэффициент вариации">
+          <Descriptions.Item
+            label={
+              <span>
+                Коэффициент вариации{' '}
+                <Tooltip title="Если > 33%, цены неоднородны — рекомендуется пересмотреть выборку">
+                  <QuestionCircleOutlined style={{ color: '#8c8c8c', fontSize: 12 }} />
+                </Tooltip>
+              </span>
+            }
+          >
             <Typography.Text type={data.coeff_variation > 33 ? 'danger' : undefined}>
               {data.coeff_variation.toFixed(2)}%
             </Typography.Text>

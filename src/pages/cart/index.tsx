@@ -12,6 +12,7 @@ import type { CartItem } from '@entities/session'
 import { useSessionStore, getSession, updateItem, deleteItem } from '@entities/session'
 
 import { formatPrice } from '@shared/lib/format'
+import { useIsMobile } from '@shared/lib/use-is-mobile'
 import { PageContainer } from '@shared/ui/page-container'
 
 export default function CartPage() {
@@ -19,6 +20,7 @@ export default function CartPage() {
   const queryClient = useQueryClient()
   const { notification } = App.useApp()
   const sessionId = useSessionStore((s) => s.sessionId)
+  const isMobile = useIsMobile()
 
   const [editingItem, setEditingItem] = useState<CartItem | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
@@ -63,7 +65,10 @@ export default function CartPage() {
   }
 
   return (
-    <PageContainer title="Корзина">
+    <PageContainer
+      title="Корзина"
+      tooltip="Позиции для включения в обоснование НМЦК. Проверьте и перейдите к формированию документа"
+    >
       {sessionId ? (
         <>
           <CartTable
@@ -73,16 +78,32 @@ export default function CartPage() {
             deletingId={deletingId}
           />
           <Card style={{ marginTop: 16 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: isMobile ? 'column' : 'row',
+                justifyContent: 'space-between',
+                alignItems: isMobile ? 'stretch' : 'center',
+                gap: isMobile ? 12 : 0,
+              }}
+            >
               <Typography.Title level={4} style={{ margin: 0 }}>
                 Итого: {formatPrice(data?.total_price ?? 0)}
               </Typography.Title>
-              <Space>
-                <Button onClick={() => navigate('/search')} icon={<SearchOutlined />}>
+              <Space
+                direction={isMobile ? 'vertical' : 'horizontal'}
+                style={{ width: isMobile ? '100%' : undefined }}
+              >
+                <Button
+                  block={isMobile}
+                  onClick={() => navigate('/search')}
+                  icon={<SearchOutlined />}
+                >
                   Продолжить поиск
                 </Button>
                 <Button
                   type="primary"
+                  block={isMobile}
                   onClick={() => navigate('/document')}
                   icon={<FileTextOutlined />}
                   disabled={!data?.items.length}
