@@ -1,14 +1,6 @@
-interface MockSteItem {
-  ste_id: string
-  name: string
-  characteristics: Record<string, string | number>
-  similarity_score: number
-  category: string
-  kpgz_code?: string
-  kpgz_name?: string
-}
+import type { SteItem } from '@/shared/contracts'
 
-export const steItems: MockSteItem[] = [
+export const steItems: SteItem[] = [
   {
     ste_id: 'ste-001',
     name: 'Бумага офисная А4, 80 г/м², 500 листов',
@@ -119,7 +111,7 @@ export const steItems: MockSteItem[] = [
   },
   {
     ste_id: 'ste-013',
-    name: 'Принтер лазерный HP LaserJet Pro M404dn',
+    name: 'Принтер лазерный HP LaserJet Pro M404dn Принтер лазерный HP LaserJet Pro M404dn',
     characteristics: { brand: 'HP', type: 'лазерный', duplex: 1, ppm: 38 },
     similarity_score: 0.86,
     category: 'Компьютерное оборудование',

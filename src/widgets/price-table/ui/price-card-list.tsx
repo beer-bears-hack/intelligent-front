@@ -13,6 +13,7 @@ interface TableRow {
   is_outlier: boolean
   reason?: string
   isManual: boolean
+  manualIndex?: number
 }
 
 interface PriceCardListProps {
@@ -20,6 +21,8 @@ interface PriceCardListProps {
   manualPrices: ManualPrice[]
   selectedIds: Set<number>
   onToggle: (id: number) => void
+  manualSelectedIndices: Set<number>
+  onToggleManual: (idx: number) => void
   loading: boolean
 }
 
@@ -28,6 +31,8 @@ export function PriceCardList({
   manualPrices,
   selectedIds,
   onToggle,
+  manualSelectedIndices,
+  onToggleManual,
   loading,
 }: PriceCardListProps) {
   if (loading) {
@@ -55,6 +60,7 @@ export function PriceCardList({
       source: mp.source,
       is_outlier: false,
       isManual: true,
+      manualIndex: idx,
     })),
   ]
 
@@ -76,9 +82,12 @@ export function PriceCardList({
         >
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
             <Checkbox
-              checked={row.isManual ? true : selectedIds.has(row.key)}
-              disabled={row.isManual}
-              onChange={() => !row.isManual && onToggle(row.key)}
+              checked={
+                row.isManual
+                  ? manualSelectedIndices.has(row.manualIndex!)
+                  : selectedIds.has(row.key)
+              }
+              onChange={() => (row.isManual ? onToggleManual(row.manualIndex!) : onToggle(row.key))}
               style={{ marginTop: 2 }}
             />
             <div style={{ flex: 1, minWidth: 0 }}>

@@ -1,17 +1,22 @@
-import { SearchOutlined, FileTextOutlined } from '@ant-design/icons'
+import { SearchOutlined } from '@ant-design/icons'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Card, Typography, Button, Space, Empty, App } from 'antd'
+import { Alert, Card, Typography, Button, Empty, App } from 'antd'
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 
 import { CartTable } from '@widgets/cart-table'
 
+import { GenerateDocForm } from '@features/generate-document'
 import { EditItemModal } from '@features/manage-cart-item'
 
+import { generateDocument, downloadDocument } from '@entities/document'
+import type { DocumentSettings } from '@entities/document'
 import type { CartItem } from '@entities/session'
 import { useSessionStore, getSession, updateItem, deleteItem } from '@entities/session'
 
+import { downloadBlob } from '@shared/lib/download'
 import { formatPrice } from '@shared/lib/format'
+import { getErrorMessage } from '@shared/lib/get-error-message'
 import { useIsMobile } from '@shared/lib/use-is-mobile'
 import { PageContainer } from '@shared/ui/page-container'
 
@@ -38,8 +43,12 @@ export default function CartPage() {
       void queryClient.invalidateQueries({ queryKey: ['session'] })
       setEditingItem(null)
     },
-    onError: () => {
-      notification.error({ message: 'Ошибка при обновлении позиции' })
+    onError: (error) => {
+      notification.error({
+        message: 'Ошибка при обновлении позиции',
+        description: getErrorMessage(error),
+        duration: 5,
+      })
     },
   })
 
@@ -49,9 +58,37 @@ export default function CartPage() {
       void queryClient.invalidateQueries({ queryKey: ['session'] })
       setDeletingId(null)
     },
-    onError: () => {
-      notification.error({ message: 'Ошибка при удалении позиции' })
+    onError: (error) => {
+      notification.error({
+        message: 'Ошибка при удалении позиции',
+        description: getErrorMessage(error),
+        duration: 5,
+      })
       setDeletingId(null)
+    },
+  })
+
+  const docMutation = useMutation({
+    mutationFn: async (settings: DocumentSettings) => {
+      const response = await generateDocument({ session_id: sessionId!, settings })
+      const blob = await downloadDocument(response.file_url)
+      const filename = response.file_url.split('/').pop() ?? 'report.docx'
+      downloadBlob(blob, filename)
+      return response
+    },
+    onSuccess: () => {
+      notification.success({
+        message: 'Документ сформирован',
+        description: 'Файл загружен автоматически.',
+        duration: 2,
+      })
+    },
+    onError: (error) => {
+      notification.error({
+        message: 'Ошибка',
+        description: getErrorMessage(error, 'Не удалось сформировать документ. Попробуйте позже.'),
+        duration: 5,
+      })
     },
   })
 
@@ -64,10 +101,16 @@ export default function CartPage() {
     deleteMutation.mutate(itemId)
   }
 
+  const handleGenerate = (settings: DocumentSettings) => {
+    docMutation.mutate(settings)
+  }
+
+  const hasItems = !!data?.items?.length
+
   return (
     <PageContainer
-      title="Корзина"
-      tooltip="Позиции для включения в обоснование НМЦК. Проверьте и перейдите к формированию документа"
+      title="Заказ"
+      tooltip="Позиции для включения в обоснование НМЦК. Проверьте и сформируйте документ"
     >
       {sessionId ? (
         <>
@@ -90,29 +133,37 @@ export default function CartPage() {
               <Typography.Title level={4} style={{ margin: 0 }}>
                 Итого: {formatPrice(data?.total_price ?? 0)}
               </Typography.Title>
-              <Space
-                direction={isMobile ? 'vertical' : 'horizontal'}
-                style={{ width: isMobile ? '100%' : undefined }}
+              <Button
+                block={isMobile}
+                onClick={() => navigate('/search')}
+                icon={<SearchOutlined />}
               >
-                <Button
-                  block={isMobile}
-                  onClick={() => navigate('/search')}
-                  icon={<SearchOutlined />}
-                >
-                  Продолжить поиск
-                </Button>
-                <Button
-                  type="primary"
-                  block={isMobile}
-                  onClick={() => navigate('/document')}
-                  icon={<FileTextOutlined />}
-                  disabled={!data?.items.length}
-                >
-                  Сформировать документ
-                </Button>
-              </Space>
+                Продолжить поиск
+              </Button>
             </div>
           </Card>
+
+          <Card title="Формирование документа" style={{ marginTop: 16 }}>
+            {hasItems ? (
+              <>
+                <GenerateDocForm onGenerate={handleGenerate} loading={docMutation.isPending} />
+                {docMutation.isSuccess && (
+                  <Alert
+                    style={{ marginTop: 16 }}
+                    type="success"
+                    message="Документ успешно сформирован"
+                    description="Файл загружен автоматически."
+                    showIcon
+                  />
+                )}
+              </>
+            ) : (
+              <Typography.Text type="secondary">
+                Добавьте позиции для формирования документа
+              </Typography.Text>
+            )}
+          </Card>
+
           <EditItemModal
             open={!!editingItem}
             item={editingItem}

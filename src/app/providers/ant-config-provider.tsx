@@ -1,4 +1,4 @@
-import { ConfigProvider, Grid } from 'antd'
+import { App, ConfigProvider, Grid } from 'antd'
 import ruRU from 'antd/locale/ru_RU'
 import type { ReactNode } from 'react'
 
@@ -13,7 +13,7 @@ function ThemedProvider({ children }: { children: ReactNode }) {
 
   return (
     <ConfigProvider locale={ruRU} theme={theme}>
-      {children}
+      <App notification={{ placement: 'topRight' }}>{children}</App>
     </ConfigProvider>
   )
 }

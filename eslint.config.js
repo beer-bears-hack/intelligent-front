@@ -69,6 +69,7 @@ export default tseslint.config(
   {
     files: [
       'src/entities/**/*.{ts,tsx}',
+      'src/pages/**/*.{ts,tsx}',
       'src/features/**/*.{ts,tsx}',
       'src/widgets/**/*.{ts,tsx}',
       'src/shared/mocks/**/*.{ts,tsx}',

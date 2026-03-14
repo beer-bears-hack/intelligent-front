@@ -150,6 +150,23 @@ body {
   background-color: #db2b21;
 }
 
+/* Bigger clear icon */
+.ant-input-clear-icon {
+  font-size: 16px;
+}
+
+/* Shorter select arrows */
+.ant-select-arrow {
+  font-size: 10px;
+  transform: scaleY(0.8);
+}
+
+/* Thicker icons globally */
+.anticon svg {
+  stroke: currentColor;
+  stroke-width: 30;
+}
+
 /* Bottom tab bar */
 .bottom-tab-bar {
   position: fixed;

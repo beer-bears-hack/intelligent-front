@@ -1,4 +1,4 @@
-import { SearchOutlined, ShoppingCartOutlined, FileTextOutlined } from '@ant-design/icons'
+import { SearchOutlined, ProfileOutlined } from '@ant-design/icons'
 import { useQuery } from '@tanstack/react-query'
 import { Grid, Layout, Menu, Badge } from 'antd'
 import { useNavigate, useLocation } from 'react-router'
@@ -35,14 +35,13 @@ export function AppHeader() {
     { key: '/search', icon: <SearchOutlined />, label: 'Поиск СТЕ' },
     {
       key: '/cart',
-      icon: <ShoppingCartOutlined />,
+      icon: <ProfileOutlined />,
       label: (
         <Badge count={itemCount} size="small" offset={[8, 0]}>
-          Корзина
+          Заказ
         </Badge>
       ),
     },
-    { key: '/document', icon: <FileTextOutlined />, label: 'Документ' },
   ]
 
   return (
