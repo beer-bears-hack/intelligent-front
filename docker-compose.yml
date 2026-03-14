@@ -1,7 +1,6 @@
 services:
   frontend:
     build:
-      context: ./intelligent-front
       dockerfile: Dockerfile
       args:
         VITE_API_BASE_URL: "https://beerbears.website"
