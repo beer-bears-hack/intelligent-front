@@ -47,7 +47,9 @@ export function SearchResultsTable({ data, loading }: SearchResultsTableProps) {
       sorter: (a, b) => a.similarity_score - b.similarity_score,
       defaultSortOrder: 'descend',
       render: (score: number) => (
-        <Tag  variant="outlined" color={getScoreColor(score)}>{(score * 100).toFixed(1)}%</Tag>
+        <Tag variant="outlined" color={getScoreColor(score)}>
+          {(score * 100).toFixed(1)}%
+        </Tag>
       ),
     },
     {

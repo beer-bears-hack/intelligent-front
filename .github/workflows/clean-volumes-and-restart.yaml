@@ -11,22 +11,22 @@ on:
 jobs:
   deploy:
     runs-on: [self-hosted]
-    
+
     steps:
       - uses: actions/checkout@v4
         with:
           clean: true
-          
+
       - name: Redeploy
-        run: |          
+        run: |
           docker-compose down -v
-          
+
           # Build and start
           if [ -n "${{ github.event.inputs.service }}" ]; then
             docker-compose up -d --build ${{ github.event.inputs.service }}
           else
             docker-compose up -d --build
           fi
-          
+
           # Show status
           docker-compose ps

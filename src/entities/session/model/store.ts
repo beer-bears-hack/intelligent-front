@@ -1,11 +1,10 @@
+import { z } from 'zod'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
-import { z } from 'zod'
-
 import { api } from '@shared/api/axios-instance'
 import { SESSION_STORAGE_KEY } from '@shared/constants'
-import { createSessionResponseSchema } from '@shared/contracts'
+import { type CreateSessionResponse, createSessionResponseSchema } from '@shared/contracts'
 
 interface SessionStore {
   sessionId: string | null
@@ -39,7 +38,7 @@ export const useSessionStore = create<SessionStore>()(
         set({ isCreating: true })
 
         try {
-          const { data } = await api.post('/sessions')
+          const { data } = await api.post<CreateSessionResponse>('/sessions')
           const parsed = createSessionResponseSchema.parse(data)
           set({ sessionId: parsed.session_id, isCreating: false })
           return parsed.session_id
@@ -54,7 +53,12 @@ export const useSessionStore = create<SessionStore>()(
       partialize: (state) => ({ sessionId: state.sessionId }),
       merge: (persisted, current) => {
         const result = z
-          .object({ sessionId: z.string().min(1).refine((v) => v !== 'null') })
+          .object({
+            sessionId: z
+              .string()
+              .min(1)
+              .refine((v) => v !== 'null'),
+          })
           .safeParse(persisted)
         return { ...current, ...(result.success ? { sessionId: result.data.sessionId } : {}) }
       },

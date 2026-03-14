@@ -24,7 +24,7 @@ body {
 .ant-input:focus,
 .ant-input-focused,
 .ant-input-affix-wrapper-focused {
-  background-color: #E7EEF7;
+  background-color: #e7eef7;
 }
 
 /* Circular pagination — 40x40 items */
@@ -37,11 +37,11 @@ body {
 }
 
 .ant-pagination .ant-pagination-item-active {
-  background-color: #264B82;
+  background-color: #264b82;
 }
 
 .ant-pagination .ant-pagination-item-active a {
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 .ant-pagination .ant-pagination-prev,
@@ -52,9 +52,9 @@ body {
 
 .ant-pagination .ant-pagination-prev .ant-pagination-item-link,
 .ant-pagination .ant-pagination-next .ant-pagination-item-link {
-  border: 1px solid #D4DBE6;
+  border: 1px solid #d4dbe6;
   border-radius: 50%;
-  color: #8C8C8C;
+  color: #8c8c8c;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -142,10 +142,10 @@ body {
 }
 
 .error-tooltip .ant-tooltip-inner {
-  background-color: #DB2B21;
-  color: #FFFFFF;
+  background-color: #db2b21;
+  color: #ffffff;
 }
 
 .error-tooltip .ant-tooltip-arrow::before {
-  background-color: #DB2B21;
+  background-color: #db2b21;
 }

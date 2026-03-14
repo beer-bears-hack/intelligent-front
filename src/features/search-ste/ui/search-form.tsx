@@ -79,7 +79,7 @@ export function SearchForm({ onSearch, loading }: SearchFormProps) {
               onOpenChange={(open) => {
                 setCategoriesOpen(open)
                 if (open && !categoriesQuery.data) {
-                  categoriesQuery.refetch()
+                  void categoriesQuery.refetch()
                 }
               }}
               loading={categoriesQuery.isLoading}
@@ -98,7 +98,7 @@ export function SearchForm({ onSearch, loading }: SearchFormProps) {
               onOpenChange={(open) => {
                 setManufacturersOpen(open)
                 if (open && !manufacturersQuery.data) {
-                  manufacturersQuery.refetch()
+                  void manufacturersQuery.refetch()
                 }
               }}
               loading={manufacturersQuery.isLoading}

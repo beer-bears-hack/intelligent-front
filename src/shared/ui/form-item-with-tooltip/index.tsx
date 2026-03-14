@@ -9,7 +9,13 @@ interface FormItemWithTooltipProps extends FormItemProps {
 }
 
 /** Sits inside Form.Item — receives field props and shows error tooltip */
-function TooltipWrapper({ children, ...fieldProps }: { children: ReactElement; [key: string]: unknown }) {
+function TooltipWrapper({
+  children,
+  ...fieldProps
+}: {
+  children: ReactElement
+  [key: string]: unknown
+}) {
   const { errors } = Form.Item.useStatus()
   const hasError = errors.length > 0
   const errorText = errors.join('; ')
@@ -21,10 +27,7 @@ function TooltipWrapper({ children, ...fieldProps }: { children: ReactElement; [
   // Open immediately (1ms), close with 150ms delay to absorb validation flicker
   const [open, setOpen] = useState(false)
   useEffect(() => {
-    const timer = setTimeout(
-      () => setOpen(hasError),
-      hasError ? 1 : 150,
-    )
+    const timer = setTimeout(() => setOpen(hasError), hasError ? 1 : 150)
     return () => clearTimeout(timer)
   }, [hasError])
 
@@ -49,7 +52,11 @@ export function FormItemWithTooltip(props: FormItemWithTooltipProps) {
       name={name}
       rules={rules}
       label={label}
-      required={required ?? (rules?.some((r) => typeof r === 'object' && 'required' in r && r.required) ?? false)}
+      required={
+        required ??
+        rules?.some((r) => typeof r === 'object' && 'required' in r && r.required) ??
+        false
+      }
       {...itemProps}
       className="tooltip-validated"
     >

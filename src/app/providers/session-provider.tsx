@@ -6,7 +6,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   const ensureSession = useSessionStore((s) => s.ensureSession)
 
   useEffect(() => {
-    ensureSession()
+    void ensureSession()
   }, [ensureSession])
 
   return children

@@ -4,8 +4,8 @@ services:
       dockerfile: Dockerfile
       context: .
       args:
-        VITE_API_BASE_URL: "https://beerbears.website/api"
+        VITE_API_BASE_URL: 'https://beerbears.website/api'
     container_name: tender-hack-frontend
     ports:
-      - "90:90"
+      - '90:90'
     restart: unless-stopped
