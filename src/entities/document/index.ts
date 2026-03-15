@@ -2,6 +2,6 @@ export type {
   GenerateDocumentRequest,
   GenerateDocumentResponse,
   DocumentSettings,
-} from './model/types'
+} from '@shared/contracts'
 export { generateDocument } from './api/generate-document'
 export { downloadDocument } from './api/download-document'

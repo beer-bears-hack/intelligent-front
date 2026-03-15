@@ -1,14 +1,17 @@
 import { PlusOutlined, ProfileOutlined, QuestionCircleOutlined } from '@ant-design/icons'
-import { useQuery, useMutation } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   App,
   Button,
   Card,
-  Descriptions,
+  Empty,
+  Flex,
   InputNumber,
   Select,
   Space,
   Spin,
+  Table,
+  Tag,
   Tooltip,
   Typography,
 } from 'antd'
@@ -26,6 +29,7 @@ import { calculateItem } from '@entities/calculation'
 import type { CalculationMethod } from '@entities/calculation'
 import { getPrices } from '@entities/price'
 import { useSessionStore } from '@entities/session'
+import { getRegions } from '@entities/ste'
 
 import type { ManualPrice, CalculateItemResponse } from '@shared/contracts'
 import { getErrorMessage } from '@shared/lib/get-error-message'
@@ -35,13 +39,14 @@ import { PageContainer } from '@shared/ui/page-container'
 import { METHOD_OPTIONS } from './model/constants'
 
 export default function PriceAnalysisPage() {
-  const { steId } = useParams<{ steId: string }>()
+  const { cteId } = useParams<{ cteId: string }>()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const { notification } = App.useApp()
   const ensureSession = useSessionStore((s) => s.ensureSession)
   const isMobile = useIsMobile()
 
-  const [definedPrices, setDefinedPrices] = useState<Set<number>>(new Set())
+  const [definedPrices, setDefinedPrices] = useState<Set<string>>(new Set())
   const [manualPrices, setManualPrices] = useState<ManualPrice[]>([])
   const [manualSelectedIndices, setManualSelectedIndices] = useState<Set<number>>(new Set())
   const [manualModalOpen, setManualModalOpen] = useState(false)
@@ -50,36 +55,68 @@ export default function PriceAnalysisPage() {
   const [method, setMethod] = useState<CalculationMethod>('comparable_market_prices')
   const [calcResult, setCalcResult] = useState<CalculateItemResponse | null>(null)
 
+  const [region, setRegion] = useState<string | undefined>()
+  const [period, setPeriod] = useState<number | undefined>()
+
   const pricesQuery = useQuery({
-    queryKey: ['prices', steId],
-    queryFn: () => getPrices(steId!),
-    enabled: !!steId,
+    queryKey: ['prices', cteId, region, period],
+    queryFn: () => getPrices(cteId!, { region, period }),
+    enabled: !!cteId && !!region,
+    placeholderData: (prev) => prev,
   })
 
-  const prices = useMemo(
-    () => pricesQuery.data?.results.flatMap((item) => item.prices) ?? [],
+  const regionsQuery = useQuery({
+    queryKey: ['regions'],
+    queryFn: getRegions,
+  })
+
+  const priceRows = useMemo(
+    () =>
+      pricesQuery.data?.results.flatMap((item) =>
+        item.prices.map((p) => ({
+          ...p,
+          cteId: item.cteId,
+          similarityScore: item.similarityScore,
+        })),
+      ) ?? [],
     [pricesQuery.data],
   )
 
   const defaultSelectedIds = useMemo(() => {
-    if (prices.length === 0) return new Set<number>()
-    return new Set(prices.filter((p) => !p.isOutlier).map((p) => p.contractId))
-  }, [prices])
+    if (priceRows.length === 0) return new Set<string>()
+    return new Set(priceRows.filter((p) => !p.isOutlier).map((p) => `${p.cteId}:${p.contractId}`))
+  }, [priceRows])
 
-  const [prevPrices, setPrevPrices] = useState(prices)
-  if (prices !== prevPrices) {
-    setPrevPrices(prices)
+  const [prevPrices, setPrevPrices] = useState(priceRows)
+  if (priceRows !== prevPrices) {
+    setPrevPrices(priceRows)
     setDefinedPrices(defaultSelectedIds)
+    setCalcResult(null)
   }
 
-  const handleToggle = useCallback((id: number) => {
+  const handleToggle = useCallback((id: string) => {
     setDefinedPrices((prev) => {
       const next = new Set(prev)
       if (next.has(id)) next.delete(id)
       else next.add(id)
       return next
     })
+    setCalcResult(null)
   }, [])
+
+  const handleToggleAll = useCallback(
+    (checked: boolean) => {
+      if (checked) {
+        setDefinedPrices(new Set(priceRows.map((p) => `${p.cteId}:${p.contractId}`)))
+        setManualSelectedIndices(new Set(manualPrices.map((_, i) => i)))
+      } else {
+        setDefinedPrices(new Set())
+        setManualSelectedIndices(new Set())
+      }
+      setCalcResult(null)
+    },
+    [priceRows, manualPrices],
+  )
 
   const handleToggleManual = useCallback((idx: number) => {
     setManualSelectedIndices((prev) => {
@@ -88,6 +125,7 @@ export default function PriceAnalysisPage() {
       else next.add(idx)
       return next
     })
+    setCalcResult(null)
   }, [])
 
   const handleAddManualPrice = useCallback((p: ManualPrice) => {
@@ -96,6 +134,7 @@ export default function PriceAnalysisPage() {
       setManualSelectedIndices(new Set(next.map((_, i) => i)))
       return next
     })
+    setCalcResult(null)
   }, [])
 
   const activeManualPrices = useMemo(
@@ -107,17 +146,18 @@ export default function PriceAnalysisPage() {
     () =>
       pricesQuery.data?.results.flatMap((item) =>
         item.prices
-          .filter((p) => definedPrices.has(p.contractId))
+          .filter((p) => definedPrices.has(`${item.cteId}:${p.contractId}`))
           .map((p) => ({
             contractId: String(p.contractId),
             cteId: item.cteId,
             isOutlier: p.isOutlier,
+            similarity: item.similarityScore,
           })),
       ) ?? [],
     [pricesQuery.data, definedPrices],
   )
 
-  const isCalcDisabled = activeDefinedPrices.length === 0 && activeManualPrices.length === 0
+  const isCalcDisabled = activeDefinedPrices.length + activeManualPrices.length < 3
 
   // Calculate
   const calcMutation = useMutation({
@@ -137,28 +177,42 @@ export default function PriceAnalysisPage() {
   const handleCalculate = () => {
     calcMutation.mutate({
       quantity,
-      items: [...activeDefinedPrices, ...activeManualPrices],
+      items: [
+        ...activeDefinedPrices,
+        ...activeManualPrices.map((p) => ({
+          ...p,
+          similarity: 1,
+          cteId: pricesQuery.data?.cteDto.cteId,
+        })),
+      ],
       method,
+      region,
     })
   }
 
   const addToCartMutation = useMutation({
     mutationFn: async () => {
-      const sid = await ensureSession()
-      if (!calcResult) throw new Error('Saving before calculation')
+      await ensureSession()
+      if (!calcResult || !pricesQuery.data?.cteDto.cteId)
+        throw new Error('Saving without needed data')
 
-      return addToCart(sid, {
-        cteId: 'hello',
+      return addToCart({
+        cteId: pricesQuery.data.cteDto.cteId,
         ...calcResult,
       })
     },
     onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['session'] })
       notification.success({
         message: 'Добавлено в заказ',
-        description: 'Перейдите в заказ для генерации документа',
-        duration: 2,
+        description: 'Расчёт сохранён.',
+        btn: (
+          <Button type="link" size="small" onClick={() => navigate('/cart')}>
+            Перейти в заказ
+          </Button>
+        ),
+        duration: 5,
       })
-      void navigate('/cart')
     },
     onError: (error) => {
       notification.error({
@@ -182,25 +236,35 @@ export default function PriceAnalysisPage() {
         <div style={{ textAlign: 'center', padding: 24 }}>
           <Spin />
         </div>
-      ) : pricesQuery.data?.current ? (
-        <Card size="small" style={{ marginBottom: 16 }}>
-          <Descriptions column={isMobile ? 1 : 2} size="small">
-            <Descriptions.Item label="Название">
-              {pricesQuery.data.current.cteName}
-            </Descriptions.Item>
-            <Descriptions.Item label="Категория">
-              {pricesQuery.data.current.category}
-            </Descriptions.Item>
-            {Object.entries(pricesQuery.data.current.characteristics ?? []).map(([key, value]) => (
-              <Descriptions.Item key={key} label={key}>
-                {String(value)}
-              </Descriptions.Item>
-            ))}
-          </Descriptions>
+      ) : pricesQuery.data?.cteDto ? (
+        <Card
+          size="small"
+          className="cte-info-card"
+          title={pricesQuery.data.cteDto.cteName}
+          extra={
+            <Tag style={{ whiteSpace: 'normal', overflowWrap: 'anywhere' }}>
+              {pricesQuery.data.cteDto.category}
+            </Tag>
+          }
+        >
+          {pricesQuery.data.cteDto.characteristics && (
+            <Table
+              size="small"
+              pagination={false}
+              showHeader={false}
+              columns={[
+                { dataIndex: 'name', title: 'Характеристика' },
+                { dataIndex: 'value', title: 'Значение' },
+              ]}
+              dataSource={Object.entries(pricesQuery.data.cteDto.characteristics).map(
+                ([key, value]) => ({ key, name: key, value: String(value) }),
+              )}
+            />
+          )}
         </Card>
       ) : null}
 
-      <PriceChart prices={prices} manualPrices={manualPrices} />
+      <PriceChart prices={priceRows} manualPrices={manualPrices} />
 
       <div
         style={{
@@ -211,15 +275,50 @@ export default function PriceAnalysisPage() {
         }}
       >
         <div style={isMobile ? undefined : { flex: 2, minWidth: 0 }}>
-          <PriceTable
-            prices={prices}
-            manualPrices={manualPrices}
-            selectedIds={definedPrices}
-            onToggle={handleToggle}
-            manualSelectedIndices={manualSelectedIndices}
-            onToggleManual={handleToggleManual}
-            loading={pricesQuery.isLoading}
-          />
+          <Flex gap={isMobile ? 8 : 16} wrap style={{ marginBottom: 0 }}>
+            <Select
+              placeholder="Регион"
+              style={{ minWidth: 200, flex: '1 1 auto' }}
+              value={region}
+              onChange={(v) => {
+                setRegion(v || undefined)
+                setCalcResult(null)
+              }}
+              allowClear={false}
+              status={region ? undefined : 'error'}
+              loading={regionsQuery.isFetching}
+              options={(regionsQuery.data ?? []).map((r) => ({ value: r, label: r }))}
+            />
+            <Select
+              placeholder="Период"
+              style={{ minWidth: 160, flex: '1 1 auto' }}
+              value={period}
+              onChange={(v) => {
+                setPeriod(v || undefined)
+                setCalcResult(null)
+              }}
+              options={[
+                { value: 0, label: 'Любой период' },
+                { value: 3, label: '3 месяца' },
+                { value: 6, label: '6 месяцев' },
+                { value: 12, label: '12 месяцев' },
+              ]}
+            />
+          </Flex>
+          {region ? (
+            <PriceTable
+              prices={priceRows}
+              manualPrices={manualPrices}
+              selectedIds={definedPrices}
+              onToggle={handleToggle}
+              onToggleAll={handleToggleAll}
+              manualSelectedIndices={manualSelectedIndices}
+              onToggleManual={handleToggleManual}
+              loading={pricesQuery.isLoading}
+            />
+          ) : (
+            <Empty description="Выберите регион для поиска цен" style={{ margin: '24px 0' }} />
+          )}
           <Space style={{ marginTop: 16 }}>
             <Button onClick={() => setManualModalOpen(true)} icon={<PlusOutlined />}>
               Добавить цену вручную
@@ -227,7 +326,7 @@ export default function PriceAnalysisPage() {
           </Space>
         </div>
 
-        <div style={isMobile ? undefined : { flex: 1, minWidth: 280 }}>
+        <div style={isMobile ? undefined : { flex: 1, minWidth: 280, display: 'flex' }}>
           <Space orientation="vertical" style={{ width: '100%' }} size="middle">
             <Card
               title={
@@ -259,7 +358,13 @@ export default function PriceAnalysisPage() {
                     options={METHOD_OPTIONS}
                   />
                 </div>
-                <Tooltip title={isCalcDisabled ? 'Выберите хотя бы одну цену' : undefined}>
+                <Tooltip
+                  title={
+                    isCalcDisabled
+                      ? 'Недостаточно данных для расчета, необходимо не меньше трех выбранных значений, если Вам недостаточно представленных значений для аналогов, введите дополнительные значения вручную'
+                      : undefined
+                  }
+                >
                   <span style={{ display: 'block' }}>
                     <Button
                       type="primary"
@@ -277,7 +382,14 @@ export default function PriceAnalysisPage() {
 
             <CalculationSummary data={calcResult} loading={calcMutation.isPending} />
 
-            {calcResult && (
+            <div
+              style={{
+                transition: 'opacity 0.3s ease, max-height 0.3s ease',
+                opacity: calcResult ? 1 : 0,
+                maxHeight: calcResult ? 200 : 0,
+                overflow: 'hidden',
+              }}
+            >
               <Button
                 type="primary"
                 block
@@ -287,7 +399,7 @@ export default function PriceAnalysisPage() {
               >
                 Добавить в заказ
               </Button>
-            )}
+            </div>
           </Space>
         </div>
       </div>
@@ -304,6 +416,21 @@ export default function PriceAnalysisPage() {
         }
         .price-row-outlier:hover > td {
           background-color: #ffccc7 !important;
+        }
+        .cte-info-card .ant-card-head-wrapper {
+          gap: 8px;
+          padding-top: 8px;
+          padding-bottom: 8px;
+        }
+
+        @media (max-width: 680px) {
+          .cte-info-card .ant-card-head-wrapper {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+          .cte-info-card .ant-card-extra {
+            margin-inline-start: 0;
+          }
         }
       `}</style>
     </PageContainer>

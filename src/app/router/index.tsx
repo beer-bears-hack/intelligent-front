@@ -14,7 +14,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <Navigate to="/search" replace /> },
       { path: 'search', element: <SearchPage /> },
-      { path: 'price-analysis/:steId', element: <PriceAnalysisPage /> },
+      { path: 'price-analysis/:cteId', element: <PriceAnalysisPage /> },
       { path: 'cart', element: <CartPage /> },
       { path: '*', element: <NotFoundPage /> },
     ],

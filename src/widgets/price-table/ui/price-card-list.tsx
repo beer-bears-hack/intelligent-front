@@ -4,8 +4,13 @@ import dayjs from 'dayjs'
 import type { Price, ManualPrice } from '@shared/contracts'
 import { formatPrice } from '@shared/lib/format'
 
+interface PriceRow extends Price {
+  cteId: string
+  similarityScore: number
+}
+
 interface TableRow {
-  key: number
+  key: string
   price: number
   date: string | null
   source: string
@@ -16,10 +21,13 @@ interface TableRow {
 }
 
 interface PriceCardListProps {
-  prices: Price[]
+  prices: PriceRow[]
   manualPrices: ManualPrice[]
-  selectedIds: Set<number>
-  onToggle: (id: number) => void
+  selectedIds: Set<string>
+  onToggle: (id: string) => void
+  onToggleAll: (checked: boolean) => void
+  allChecked: boolean
+  someChecked: boolean
   manualSelectedIndices: Set<number>
   onToggleManual: (idx: number) => void
   loading: boolean
@@ -30,6 +38,9 @@ export function PriceCardList({
   manualPrices,
   selectedIds,
   onToggle,
+  onToggleAll,
+  allChecked,
+  someChecked,
   manualSelectedIndices,
   onToggleManual,
   loading,
@@ -44,7 +55,7 @@ export function PriceCardList({
 
   const rows: TableRow[] = [
     ...prices.map((p) => ({
-      key: p.contractId,
+      key: `${p.cteId}:${p.contractId}`,
       price: p.price,
       date: p.date,
       source: p.source,
@@ -53,7 +64,7 @@ export function PriceCardList({
       isManual: false,
     })),
     ...manualPrices.map((mp, idx) => ({
-      key: -(idx + 1),
+      key: `manual:${idx}`,
       price: mp.price,
       date: null,
       source: mp.reason,
@@ -64,67 +75,80 @@ export function PriceCardList({
   ]
 
   if (rows.length === 0) {
-    return <Empty description="Нет ценовых данных" />
+    return <Empty description="Нет ценовых данных" style={{ margin: '24px 0' }} />
   }
 
   return (
-    <List
-      dataSource={rows}
-      style={{ marginTop: 16 }}
-      renderItem={(row) => (
-        <Card
-          size="small"
-          style={{
-            marginBottom: 8,
-            borderLeft: row.isOutlier && !row.isManual ? '3px solid #DB2B21' : undefined,
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-            <Checkbox
-              checked={
-                row.isManual
-                  ? manualSelectedIndices.has(row.manualIndex!)
-                  : selectedIds.has(row.key)
-              }
-              onChange={() => (row.isManual ? onToggleManual(row.manualIndex!) : onToggle(row.key))}
-              style={{ marginTop: 2 }}
-            />
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <Typography.Text strong style={{ fontSize: 16 }}>
-                {formatPrice(row.price)}
-              </Typography.Text>
-              <div
-                style={{
-                  display: 'flex',
-                  gap: 8,
-                  alignItems: 'center',
-                  marginTop: 4,
-                  flexWrap: 'wrap',
-                }}
-              >
-                <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                  {row.date ? dayjs(row.date).format('DD.MM.YYYY') : '—'}
+    <>
+      <div
+        style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 16, marginBottom: 8 }}
+      >
+        <Checkbox
+          checked={allChecked}
+          indeterminate={someChecked}
+          onChange={(e) => onToggleAll(e.target.checked)}
+        />
+        <Typography.Text type="secondary">Выбрать все</Typography.Text>
+      </div>
+      <List
+        dataSource={rows}
+        renderItem={(row) => (
+          <Card
+            size="small"
+            style={{
+              marginBottom: 8,
+              borderLeft: row.isOutlier && !row.isManual ? '3px solid #DB2B21' : undefined,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+              <Checkbox
+                checked={
+                  row.isManual
+                    ? manualSelectedIndices.has(row.manualIndex!)
+                    : selectedIds.has(row.key)
+                }
+                onChange={() =>
+                  row.isManual ? onToggleManual(row.manualIndex!) : onToggle(row.key)
+                }
+                style={{ marginTop: 2 }}
+              />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <Typography.Text strong style={{ fontSize: 16 }}>
+                  {formatPrice(row.price)}
                 </Typography.Text>
-                <Typography.Text type="secondary" style={{ fontSize: 12 }} ellipsis>
-                  {row.source}
-                </Typography.Text>
-                {row.isManual && (
-                  <Tag variant="outlined" color="blue" style={{ marginInlineEnd: 0 }}>
-                    Ручная
-                  </Tag>
-                )}
-                {row.isOutlier && !row.isManual && (
-                  <Tooltip title={row.reason}>
-                    <Tag variant="outlined" color="red" style={{ marginInlineEnd: 0 }}>
-                      Выброс
+                <div
+                  style={{
+                    display: 'flex',
+                    gap: 8,
+                    alignItems: 'center',
+                    marginTop: 4,
+                    flexWrap: 'wrap',
+                  }}
+                >
+                  <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                    {row.date ? dayjs(row.date).format('DD.MM.YYYY') : '—'}
+                  </Typography.Text>
+                  <Typography.Text type="secondary" style={{ fontSize: 12 }} ellipsis>
+                    {row.source}
+                  </Typography.Text>
+                  {row.isManual && (
+                    <Tag variant="outlined" color="blue" style={{ marginInlineEnd: 0 }}>
+                      Ручная
                     </Tag>
-                  </Tooltip>
-                )}
+                  )}
+                  {row.isOutlier && !row.isManual && (
+                    <Tooltip title={row.reason}>
+                      <Tag variant="outlined" color="red" style={{ marginInlineEnd: 0 }}>
+                        Выброс
+                      </Tag>
+                    </Tooltip>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        </Card>
-      )}
-    />
+          </Card>
+        )}
+      />
+    </>
   )
 }

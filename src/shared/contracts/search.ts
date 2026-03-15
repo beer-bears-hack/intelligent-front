@@ -48,7 +48,7 @@ export const steDto = z.object({
 export type SteInfo = z.infer<typeof steDto>
 
 export const pricesResponse = z.object({
-  current: steDto,
+  cteDto: steDto,
   results: searchResultArray,
 })
 export type PricesResponse = z.infer<typeof pricesResponse>

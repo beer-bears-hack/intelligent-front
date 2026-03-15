@@ -1,6 +1,5 @@
 import { api } from '@shared/api/axios-instance'
-
-import type { GenerateDocumentRequest, GenerateDocumentResponse } from '../model/types'
+import type { GenerateDocumentRequest, GenerateDocumentResponse } from '@shared/contracts'
 
 export async function generateDocument(
   params: GenerateDocumentRequest,

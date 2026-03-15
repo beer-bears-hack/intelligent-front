@@ -6,6 +6,7 @@ on:
   pull_request:
     branches: [master]
   workflow_call:
+  workflow_dispatch:
 
 jobs:
   lint:
@@ -48,3 +49,17 @@ jobs:
 
       - name: Build
         run: npm run build
+
+  deploy:
+    name: Deploy Docker Compose
+    needs: build
+    runs-on: [self-hosted]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          clean: true
+      - name: Deploy
+        run: |
+          docker-compose down 2>/dev/null || true
+          docker-compose up -d --build
+          docker-compose ps

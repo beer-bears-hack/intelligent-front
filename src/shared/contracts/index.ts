@@ -5,3 +5,5 @@ export * from './filters'
 export * from './calculate'
 
 export * from './session'
+
+export * from './document'

@@ -11,8 +11,13 @@ import { EllipsisWithTooltip } from '@shared/ui/ellipsis-with-tooltip'
 
 import { PriceCardList } from './price-card-list'
 
+interface PriceRow extends Price {
+  cteId: string
+  similarityScore: number
+}
+
 interface TableRow {
-  key: number
+  key: string
   price: number
   date: string | null
   source: string
@@ -23,10 +28,11 @@ interface TableRow {
 }
 
 interface PriceTableProps {
-  prices: Price[]
+  prices: PriceRow[]
   manualPrices: ManualPrice[]
-  selectedIds: Set<number>
-  onToggle: (id: number) => void
+  selectedIds: Set<string>
+  onToggle: (id: string) => void
+  onToggleAll: (checked: boolean) => void
   manualSelectedIndices: Set<number>
   onToggleManual: (idx: number) => void
   loading: boolean
@@ -37,6 +43,7 @@ export function PriceTable({
   manualPrices,
   selectedIds,
   onToggle,
+  onToggleAll,
   manualSelectedIndices,
   onToggleManual,
   loading,
@@ -45,7 +52,7 @@ export function PriceTable({
 
   const dataSource = useMemo<TableRow[]>(() => {
     const apiRows: TableRow[] = prices.map((p) => ({
-      key: p.contractId,
+      key: `${p.cteId}:${p.contractId}`,
       price: p.price,
       date: p.date,
       source: p.source,
@@ -55,7 +62,7 @@ export function PriceTable({
     }))
 
     const manualRows: TableRow[] = manualPrices.map((mp, idx) => ({
-      key: -(idx + 1),
+      key: `manual:${idx}`,
       price: mp.price,
       date: null,
       source: mp.reason,
@@ -67,6 +74,11 @@ export function PriceTable({
     return [...apiRows, ...manualRows]
   }, [prices, manualPrices])
 
+  const totalCount = prices.length + manualPrices.length
+  const selectedCount = selectedIds.size + manualSelectedIndices.size
+  const allChecked = totalCount > 0 && selectedCount === totalCount
+  const someChecked = selectedCount > 0 && selectedCount < totalCount
+
   if (isMobile) {
     return (
       <PriceCardList
@@ -74,6 +86,9 @@ export function PriceTable({
         manualPrices={manualPrices}
         selectedIds={selectedIds}
         onToggle={onToggle}
+        onToggleAll={onToggleAll}
+        allChecked={allChecked}
+        someChecked={someChecked}
         manualSelectedIndices={manualSelectedIndices}
         onToggleManual={onToggleManual}
         loading={loading}
@@ -83,7 +98,13 @@ export function PriceTable({
 
   const columns: ColumnsType<TableRow> = [
     {
-      title: '',
+      title: (
+        <Checkbox
+          checked={allChecked}
+          indeterminate={someChecked}
+          onChange={(e) => onToggleAll(e.target.checked)}
+        />
+      ),
       dataIndex: 'key',
       width: 48,
       render: (_: unknown, record: TableRow) => {
@@ -126,7 +147,7 @@ export function PriceTable({
     },
     {
       title: 'Статус',
-      dataIndex: 'is_outlier',
+      dataIndex: 'isOutlier',
       minWidth: 120,
       render: (_: unknown, record: TableRow) => {
         if (record.isManual) {

@@ -43,15 +43,15 @@ export function CartTable({ items, onEdit, onDelete, deletingId }: CartTableProp
     },
     {
       title: 'Цена за ед.',
-      dataIndex: 'unit_price',
-      key: 'unit_price',
+      dataIndex: 'unitPrice',
+      key: 'unitPrice',
       minWidth: 160,
       render: (value: number) => formatPrice(value),
     },
     {
       title: 'Итого',
-      dataIndex: 'total_price',
-      key: 'total_price',
+      dataIndex: 'totalPrice',
+      key: 'totalPrice',
       minWidth: 160,
       render: (value: number) => formatPrice(value),
     },
@@ -75,7 +75,7 @@ export function CartTable({ items, onEdit, onDelete, deletingId }: CartTableProp
     <Table<SessionItem>
       columns={columns}
       dataSource={items}
-      rowKey="item_id"
+      rowKey="name"
       pagination={false}
       locale={{ emptyText: 'Корзина пуста' }}
       scroll={{ x: 'max-content' }}
