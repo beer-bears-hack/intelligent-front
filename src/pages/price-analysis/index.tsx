@@ -70,16 +70,18 @@ export default function PriceAnalysisPage() {
   const priceRows = useMemo(
     () =>
       pricesQuery.data?.results.flatMap((item) =>
-        item.prices.map((p) => ({ ...p, cteId: item.cteId, similarityScore: item.similarityScore })),
+        item.prices.map((p) => ({
+          ...p,
+          cteId: item.cteId,
+          similarityScore: item.similarityScore,
+        })),
       ) ?? [],
     [pricesQuery.data],
   )
 
   const defaultSelectedIds = useMemo(() => {
     if (priceRows.length === 0) return new Set<string>()
-    return new Set(
-      priceRows.filter((p) => !p.isOutlier).map((p) => `${p.cteId}:${p.contractId}`),
-    )
+    return new Set(priceRows.filter((p) => !p.isOutlier).map((p) => `${p.cteId}:${p.contractId}`))
   }, [priceRows])
 
   const [prevPrices, setPrevPrices] = useState(priceRows)

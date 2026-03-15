@@ -80,7 +80,9 @@ export function PriceCardList({
 
   return (
     <>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 16, marginBottom: 8 }}>
+      <div
+        style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 16, marginBottom: 8 }}
+      >
         <Checkbox
           checked={allChecked}
           indeterminate={someChecked}
@@ -89,61 +91,63 @@ export function PriceCardList({
         <Typography.Text type="secondary">Выбрать все</Typography.Text>
       </div>
       <List
-      dataSource={rows}
-      renderItem={(row) => (
-        <Card
-          size="small"
-          style={{
-            marginBottom: 8,
-            borderLeft: row.isOutlier && !row.isManual ? '3px solid #DB2B21' : undefined,
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-            <Checkbox
-              checked={
-                row.isManual
-                  ? manualSelectedIndices.has(row.manualIndex!)
-                  : selectedIds.has(row.key)
-              }
-              onChange={() => (row.isManual ? onToggleManual(row.manualIndex!) : onToggle(row.key))}
-              style={{ marginTop: 2 }}
-            />
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <Typography.Text strong style={{ fontSize: 16 }}>
-                {formatPrice(row.price)}
-              </Typography.Text>
-              <div
-                style={{
-                  display: 'flex',
-                  gap: 8,
-                  alignItems: 'center',
-                  marginTop: 4,
-                  flexWrap: 'wrap',
-                }}
-              >
-                <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                  {row.date ? dayjs(row.date).format('DD.MM.YYYY') : '—'}
+        dataSource={rows}
+        renderItem={(row) => (
+          <Card
+            size="small"
+            style={{
+              marginBottom: 8,
+              borderLeft: row.isOutlier && !row.isManual ? '3px solid #DB2B21' : undefined,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+              <Checkbox
+                checked={
+                  row.isManual
+                    ? manualSelectedIndices.has(row.manualIndex!)
+                    : selectedIds.has(row.key)
+                }
+                onChange={() =>
+                  row.isManual ? onToggleManual(row.manualIndex!) : onToggle(row.key)
+                }
+                style={{ marginTop: 2 }}
+              />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <Typography.Text strong style={{ fontSize: 16 }}>
+                  {formatPrice(row.price)}
                 </Typography.Text>
-                <Typography.Text type="secondary" style={{ fontSize: 12 }} ellipsis>
-                  {row.source}
-                </Typography.Text>
-                {row.isManual && (
-                  <Tag variant="outlined" color="blue" style={{ marginInlineEnd: 0 }}>
-                    Ручная
-                  </Tag>
-                )}
-                {row.isOutlier && !row.isManual && (
-                  <Tooltip title={row.reason}>
-                    <Tag variant="outlined" color="red" style={{ marginInlineEnd: 0 }}>
-                      Выброс
+                <div
+                  style={{
+                    display: 'flex',
+                    gap: 8,
+                    alignItems: 'center',
+                    marginTop: 4,
+                    flexWrap: 'wrap',
+                  }}
+                >
+                  <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                    {row.date ? dayjs(row.date).format('DD.MM.YYYY') : '—'}
+                  </Typography.Text>
+                  <Typography.Text type="secondary" style={{ fontSize: 12 }} ellipsis>
+                    {row.source}
+                  </Typography.Text>
+                  {row.isManual && (
+                    <Tag variant="outlined" color="blue" style={{ marginInlineEnd: 0 }}>
+                      Ручная
                     </Tag>
-                  </Tooltip>
-                )}
+                  )}
+                  {row.isOutlier && !row.isManual && (
+                    <Tooltip title={row.reason}>
+                      <Tag variant="outlined" color="red" style={{ marginInlineEnd: 0 }}>
+                        Выброс
+                      </Tag>
+                    </Tooltip>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        </Card>
-      )}
+          </Card>
+        )}
       />
     </>
   )
