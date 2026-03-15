@@ -75,7 +75,7 @@ export function PriceCardList({
   ]
 
   if (rows.length === 0) {
-    return <Empty description="Нет ценовых данных" />
+    return <Empty description="Нет ценовых данных" style={{ margin: '24px 0' }} />
   }
 
   return (

@@ -152,7 +152,7 @@ body {
 
 /* Bigger clear icon */
 .ant-input-clear-icon {
-  font-size: 16px;
+  font-size: 20px;
 }
 
 /* Shorter select arrows */
@@ -207,6 +207,9 @@ body {
 .bottom-tab-bar__icon {
   font-size: 20px;
   line-height: 1;
+}
+.bottom-tab-bar__icon .anticon {
+  font-size: 24px;
 }
 
 .bottom-tab-bar__label {

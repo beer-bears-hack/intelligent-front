@@ -5,6 +5,7 @@ import {
   Button,
   Card,
   Empty,
+  Flex,
   InputNumber,
   Select,
   Space,
@@ -239,9 +240,12 @@ export default function PriceAnalysisPage() {
         <Card
           size="small"
           className="cte-info-card"
-          style={{ marginBottom: 16 }}
           title={pricesQuery.data.cteDto.cteName}
-          extra={<Tag>{pricesQuery.data.cteDto.category}</Tag>}
+          extra={
+            <Tag style={{ whiteSpace: 'normal', overflowWrap: 'anywhere' }}>
+              {pricesQuery.data.cteDto.category}
+            </Tag>
+          }
         >
           {pricesQuery.data.cteDto.characteristics && (
             <Table
@@ -271,10 +275,10 @@ export default function PriceAnalysisPage() {
         }}
       >
         <div style={isMobile ? undefined : { flex: 2, minWidth: 0 }}>
-          <Space wrap style={{ marginBottom: 0 }}>
+          <Flex gap={isMobile ? 8 : 16} wrap style={{ marginBottom: 0 }}>
             <Select
               placeholder="Регион"
-              style={{ minWidth: 200 }}
+              style={{ minWidth: 200, flex: '1 1 auto' }}
               value={region}
               onChange={(v) => {
                 setRegion(v || undefined)
@@ -287,7 +291,7 @@ export default function PriceAnalysisPage() {
             />
             <Select
               placeholder="Период"
-              style={{ minWidth: 160 }}
+              style={{ minWidth: 160, flex: '1 1 auto' }}
               value={period}
               onChange={(v) => {
                 setPeriod(v || undefined)
@@ -300,7 +304,7 @@ export default function PriceAnalysisPage() {
                 { value: 12, label: '12 месяцев' },
               ]}
             />
-          </Space>
+          </Flex>
           {region ? (
             <PriceTable
               prices={priceRows}
@@ -322,7 +326,7 @@ export default function PriceAnalysisPage() {
           </Space>
         </div>
 
-        <div style={isMobile ? undefined : { flex: 1, minWidth: 280 }}>
+        <div style={isMobile ? undefined : { flex: 1, minWidth: 280, display: 'flex' }}>
           <Space orientation="vertical" style={{ width: '100%' }} size="middle">
             <Card
               title={
@@ -413,12 +417,18 @@ export default function PriceAnalysisPage() {
         .price-row-outlier:hover > td {
           background-color: #ffccc7 !important;
         }
+        .cte-info-card .ant-card-head-wrapper {
+          gap: 8px;
+          padding-top: 8px;
+          padding-bottom: 8px;
+        }
+
         @media (max-width: 680px) {
-          .cte-info-card > .ant-card-head {
+          .cte-info-card .ant-card-head-wrapper {
             flex-direction: column;
             align-items: flex-start;
           }
-          .cte-info-card > .ant-card-head .ant-card-extra {
+          .cte-info-card .ant-card-extra {
             margin-inline-start: 0;
           }
         }
