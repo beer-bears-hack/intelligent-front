@@ -9,12 +9,12 @@ import { CartTable } from '@widgets/cart-table'
 import { GenerateDocForm } from '@features/generate-document'
 import { EditItemModal } from '@features/manage-cart-item'
 
-import { generateDocument, downloadDocument } from '@entities/document'
+import { generateDocument } from '@entities/document'
 import type { DocumentSettings } from '@entities/document'
 import { useSessionStore, getSession, updateItem, deleteItem } from '@entities/session'
 
 import type { SessionItem } from '@shared/contracts'
-import { downloadBlob } from '@shared/lib/download'
+import { downloadUrl } from '@shared/lib/download'
 import { formatPrice } from '@shared/lib/format'
 import { getErrorMessage } from '@shared/lib/get-error-message'
 import { useIsMobile } from '@shared/lib/use-is-mobile'
@@ -71,9 +71,8 @@ export default function CartPage() {
   const docMutation = useMutation({
     mutationFn: async (settings: DocumentSettings) => {
       const response = await generateDocument({ sessionId: sessionId!, settings })
-      const blob = await downloadDocument(response.fileUrl)
       const filename = response.fileUrl.split('/').pop() ?? 'report.docx'
-      downloadBlob(blob, filename)
+      downloadUrl(response.fileUrl, filename)
       return response
     },
     onSuccess: () => {

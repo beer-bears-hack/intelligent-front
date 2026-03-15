@@ -1,14 +1,16 @@
 import { PlusOutlined, ProfileOutlined, QuestionCircleOutlined } from '@ant-design/icons'
-import { useQuery, useMutation } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   App,
   Button,
   Card,
-  Descriptions,
+  Empty,
   InputNumber,
   Select,
   Space,
   Spin,
+  Table,
+  Tag,
   Tooltip,
   Typography,
 } from 'antd'
@@ -38,6 +40,7 @@ import { METHOD_OPTIONS } from './model/constants'
 export default function PriceAnalysisPage() {
   const { cteId } = useParams<{ cteId: string }>()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const { notification } = App.useApp()
   const ensureSession = useSessionStore((s) => s.ensureSession)
   const isMobile = useIsMobile()
@@ -57,14 +60,13 @@ export default function PriceAnalysisPage() {
   const pricesQuery = useQuery({
     queryKey: ['prices', cteId, region, period],
     queryFn: () => getPrices(cteId!, { region, period }),
-    enabled: !!cteId,
+    enabled: !!cteId && !!region,
     placeholderData: (prev) => prev,
   })
 
   const regionsQuery = useQuery({
     queryKey: ['regions'],
     queryFn: getRegions,
-    enabled: false,
   })
 
   const priceRows = useMemo(
@@ -154,7 +156,7 @@ export default function PriceAnalysisPage() {
     [pricesQuery.data, definedPrices],
   )
 
-  const isCalcDisabled = activeDefinedPrices.length === 0 && activeManualPrices.length === 0
+  const isCalcDisabled = activeDefinedPrices.length + activeManualPrices.length < 3
 
   // Calculate
   const calcMutation = useMutation({
@@ -198,6 +200,7 @@ export default function PriceAnalysisPage() {
       })
     },
     onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['session'] })
       notification.success({
         message: 'Добавлено в заказ',
         description: 'Расчёт сохранён.',
@@ -232,25 +235,26 @@ export default function PriceAnalysisPage() {
           <Spin />
         </div>
       ) : pricesQuery.data?.cteDto ? (
-        <Card size="small" style={{ marginBottom: 16 }}>
-          <Descriptions
-            column={isMobile ? 1 : 2}
-            size="small"
-            labelStyle={{ maxWidth: 200, wordBreak: 'break-word', whiteSpace: 'normal' }}
-            contentStyle={{ maxWidth: 400, wordBreak: 'break-word', whiteSpace: 'normal' }}
-          >
-            <Descriptions.Item label="Название">
-              {pricesQuery.data.cteDto.cteName}
-            </Descriptions.Item>
-            <Descriptions.Item label="Категория">
-              {pricesQuery.data.cteDto.category}
-            </Descriptions.Item>
-            {Object.entries(pricesQuery.data.cteDto.characteristics ?? []).map(([key, value]) => (
-              <Descriptions.Item key={key} label={key}>
-                {String(value)}
-              </Descriptions.Item>
-            ))}
-          </Descriptions>
+        <Card
+          size="small"
+          style={{ marginBottom: 16 }}
+          title={pricesQuery.data.cteDto.cteName}
+          extra={<Tag>{pricesQuery.data.cteDto.category}</Tag>}
+        >
+          {pricesQuery.data.cteDto.characteristics && (
+            <Table
+              size="small"
+              pagination={false}
+              showHeader={false}
+              columns={[
+                { dataIndex: 'name', title: 'Характеристика' },
+                { dataIndex: 'value', title: 'Значение' },
+              ]}
+              dataSource={Object.entries(pricesQuery.data.cteDto.characteristics).map(
+                ([key, value]) => ({ key, name: key, value: String(value) }),
+              )}
+            />
+          )}
         </Card>
       ) : null}
 
@@ -274,14 +278,10 @@ export default function PriceAnalysisPage() {
                 setRegion(v || undefined)
                 setCalcResult(null)
               }}
-              onOpenChange={(open) => {
-                if (open) void regionsQuery.refetch()
-              }}
+              allowClear={false}
+              status={region ? undefined : 'error'}
               loading={regionsQuery.isFetching}
-              options={[
-                { value: '', label: 'Все регионы' },
-                ...(regionsQuery.data ?? []).map((r) => ({ value: r, label: r })),
-              ]}
+              options={(regionsQuery.data ?? []).map((r) => ({ value: r, label: r }))}
             />
             <Select
               placeholder="Период"
@@ -299,16 +299,20 @@ export default function PriceAnalysisPage() {
               ]}
             />
           </Space>
-          <PriceTable
-            prices={priceRows}
-            manualPrices={manualPrices}
-            selectedIds={definedPrices}
-            onToggle={handleToggle}
-            onToggleAll={handleToggleAll}
-            manualSelectedIndices={manualSelectedIndices}
-            onToggleManual={handleToggleManual}
-            loading={pricesQuery.isLoading}
-          />
+          {region ? (
+            <PriceTable
+              prices={priceRows}
+              manualPrices={manualPrices}
+              selectedIds={definedPrices}
+              onToggle={handleToggle}
+              onToggleAll={handleToggleAll}
+              manualSelectedIndices={manualSelectedIndices}
+              onToggleManual={handleToggleManual}
+              loading={pricesQuery.isLoading}
+            />
+          ) : (
+            <Empty description="Выберите регион для поиска цен" style={{ margin: '24px 0' }} />
+          )}
           <Space style={{ marginTop: 16 }}>
             <Button onClick={() => setManualModalOpen(true)} icon={<PlusOutlined />}>
               Добавить цену вручную
@@ -348,7 +352,13 @@ export default function PriceAnalysisPage() {
                     options={METHOD_OPTIONS}
                   />
                 </div>
-                <Tooltip title={isCalcDisabled ? 'Выберите хотя бы одну цену' : undefined}>
+                <Tooltip
+                  title={
+                    isCalcDisabled
+                      ? 'Недостаточно данных для расчета, необходимо не меньше трех выбранных значений, если Вам недостаточно представленных значений для аналогов, введите дополнительные значения вручную'
+                      : undefined
+                  }
+                >
                   <span style={{ display: 'block' }}>
                     <Button
                       type="primary"
