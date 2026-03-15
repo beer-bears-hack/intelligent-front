@@ -185,6 +185,7 @@ export default function PriceAnalysisPage() {
         })),
       ],
       method,
+      region,
     })
   }
 
@@ -237,6 +238,7 @@ export default function PriceAnalysisPage() {
       ) : pricesQuery.data?.cteDto ? (
         <Card
           size="small"
+          className="cte-info-card"
           style={{ marginBottom: 16 }}
           title={pricesQuery.data.cteDto.cteName}
           extra={<Tag>{pricesQuery.data.cteDto.category}</Tag>}
@@ -410,6 +412,15 @@ export default function PriceAnalysisPage() {
         }
         .price-row-outlier:hover > td {
           background-color: #ffccc7 !important;
+        }
+        @media (max-width: 680px) {
+          .cte-info-card > .ant-card-head {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+          .cte-info-card > .ant-card-head .ant-card-extra {
+            margin-inline-start: 0;
+          }
         }
       `}</style>
     </PageContainer>
