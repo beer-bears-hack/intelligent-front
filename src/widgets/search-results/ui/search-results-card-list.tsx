@@ -1,4 +1,4 @@
-import { Button, Card, Empty, List, Spin, Tag, Typography } from 'antd'
+import { Button, Card, Empty, List, Skeleton, Tag, Typography } from 'antd'
 import { useNavigate } from 'react-router'
 
 import type { SearchResult } from '@shared/contracts'
@@ -18,11 +18,7 @@ export function SearchResultsCardList({ data, loading }: SearchResultsCardListPr
   const navigate = useNavigate()
 
   if (loading) {
-    return (
-      <div style={{ textAlign: 'center', padding: 48 }}>
-        <Spin />
-      </div>
-    )
+    return <Skeleton active paragraph={{ rows: 4 }} />
   }
 
   if (data.length === 0) {
@@ -46,7 +42,9 @@ export function SearchResultsCardList({ data, loading }: SearchResultsCardListPr
               {item.category}
             </Typography.Text>
             <Tag variant="outlined" color={getScoreColor(item.similarityScore)}>
-              {(item.similarityScore * 100).toFixed(1)}%
+              {Number.isNaN(item.similarityScore)
+                ? '—'
+                : `${(item.similarityScore * 100).toFixed(1)}%`}
             </Tag>
           </div>
           <Button

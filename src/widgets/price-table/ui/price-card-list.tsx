@@ -1,4 +1,5 @@
-import { Card, Checkbox, Empty, List, Spin, Tag, Tooltip, Typography } from 'antd'
+import { WarningOutlined } from '@ant-design/icons'
+import { Card, Checkbox, Empty, List, Skeleton, Tooltip, Typography } from 'antd'
 import dayjs from 'dayjs'
 
 import type { Price, ManualPrice } from '@shared/contracts'
@@ -6,11 +7,13 @@ import { formatPrice } from '@shared/lib/format'
 
 interface PriceRow extends Price {
   cteId: string
+  name: string
   similarityScore: number
 }
 
 interface TableRow {
   key: string
+  cteName: string
   price: number
   date: string | null
   source: string
@@ -46,16 +49,13 @@ export function PriceCardList({
   loading,
 }: PriceCardListProps) {
   if (loading) {
-    return (
-      <div style={{ textAlign: 'center', padding: 48 }}>
-        <Spin />
-      </div>
-    )
+    return <Skeleton active paragraph={{ rows: 4 }} />
   }
 
   const rows: TableRow[] = [
     ...prices.map((p) => ({
       key: `${p.cteId}:${p.contractId}`,
+      cteName: p.name,
       price: p.price,
       date: p.date,
       source: p.source,
@@ -65,6 +65,7 @@ export function PriceCardList({
     })),
     ...manualPrices.map((mp, idx) => ({
       key: `manual:${idx}`,
+      cteName: 'Ручной ввод',
       price: mp.price,
       date: null,
       source: mp.reason,
@@ -97,7 +98,12 @@ export function PriceCardList({
             size="small"
             style={{
               marginBottom: 8,
-              borderLeft: row.isOutlier && !row.isManual ? '3px solid #DB2B21' : undefined,
+              borderLeft:
+                row.isOutlier && !row.isManual
+                  ? '3px solid #DB2B21'
+                  : row.isManual
+                    ? '3px solid #1677ff'
+                    : undefined,
             }}
           >
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
@@ -113,37 +119,32 @@ export function PriceCardList({
                 style={{ marginTop: 2 }}
               />
               <div style={{ flex: 1, minWidth: 0 }}>
-                <Typography.Text strong style={{ fontSize: 16 }}>
-                  {formatPrice(row.price)}
-                </Typography.Text>
-                <div
-                  style={{
-                    display: 'flex',
-                    gap: 8,
-                    alignItems: 'center',
-                    marginTop: 4,
-                    flexWrap: 'wrap',
-                  }}
-                >
-                  <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                    {row.date ? dayjs(row.date).format('DD.MM.YYYY') : '—'}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                  <Typography.Text strong ellipsis style={{ flex: 1, minWidth: 0 }}>
+                    {row.cteName}
                   </Typography.Text>
-                  <Typography.Text type="secondary" style={{ fontSize: 12 }} ellipsis>
-                    {row.source}
-                  </Typography.Text>
-                  {row.isManual && (
-                    <Tag variant="outlined" color="blue" style={{ marginInlineEnd: 0 }}>
-                      Ручная
-                    </Tag>
-                  )}
                   {row.isOutlier && !row.isManual && (
                     <Tooltip title={row.reason}>
-                      <Tag variant="outlined" color="red" style={{ marginInlineEnd: 0 }}>
-                        Выброс
-                      </Tag>
+                      <WarningOutlined style={{ color: '#faad14', fontSize: 14, flexShrink: 0 }} />
                     </Tooltip>
                   )}
                 </div>
+                <Typography.Text strong style={{ fontSize: 16 }}>
+                  {formatPrice(row.price)}
+                </Typography.Text>
+                <Typography.Text
+                  type="secondary"
+                  style={{ fontSize: 13, marginTop: 4, display: 'block' }}
+                  ellipsis
+                >
+                  {row.source}
+                </Typography.Text>
+                <Typography.Text
+                  type="secondary"
+                  style={{ fontSize: 11, marginTop: 2, display: 'block' }}
+                >
+                  {row.date ? dayjs(row.date).format('DD.MM.YYYY') : '—'}
+                </Typography.Text>
               </div>
             </div>
           </Card>

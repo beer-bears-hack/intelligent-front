@@ -1,4 +1,4 @@
-import { Button, Empty, Table, Tag } from 'antd'
+import { Button, Empty, Skeleton, Table, Tag } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { useNavigate } from 'react-router'
 
@@ -17,6 +17,10 @@ function getScoreColor(score: number): string {
   if (score > 0.8) return 'green'
   if (score > 0.5) return 'orange'
   return 'red'
+}
+
+function formatScore(score: number): string {
+  return Number.isNaN(score) ? '—' : `${(score * 100).toFixed(1)}%`
 }
 
 export function SearchResultsTable({ data, loading }: SearchResultsTableProps) {
@@ -52,7 +56,7 @@ export function SearchResultsTable({ data, loading }: SearchResultsTableProps) {
       defaultSortOrder: 'descend',
       render: (score: number) => (
         <Tag variant="outlined" color={getScoreColor(score)}>
-          {(score * 100).toFixed(1)}%
+          {formatScore(score)}
         </Tag>
       ),
     },
@@ -75,12 +79,21 @@ export function SearchResultsTable({ data, loading }: SearchResultsTableProps) {
     },
   ]
 
+  if (loading && data.length === 0) {
+    const skeletonColumns = columns.map((col) => ({
+      ...col,
+      render: () => <Skeleton.Input active size="small" block />,
+      sorter: undefined,
+      defaultSortOrder: undefined,
+    }))
+    return <Table columns={skeletonColumns} rowKey="key" pagination={false} />
+  }
+
   return (
     <Table<SearchResult>
       columns={columns}
       dataSource={data}
       rowKey="cteId"
-      loading={loading}
       locale={{ emptyText: <Empty description="Нет результатов" /> }}
       pagination={{ pageSize: 10, showSizeChanger: false }}
       scroll={{ x: 'max-content' }}
