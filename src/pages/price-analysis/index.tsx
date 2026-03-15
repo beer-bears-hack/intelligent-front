@@ -231,7 +231,10 @@ export default function PriceAnalysisPage() {
               placeholder="Регион"
               style={{ minWidth: 200 }}
               value={region}
-              onChange={(v) => { setRegion(v || undefined); setCalcResult(null) }}
+              onChange={(v) => {
+                setRegion(v || undefined)
+                setCalcResult(null)
+              }}
               onDropdownVisibleChange={(open) => {
                 if (open) void regionsQuery.refetch()
               }}
@@ -245,7 +248,10 @@ export default function PriceAnalysisPage() {
               placeholder="Период"
               style={{ minWidth: 160 }}
               value={period}
-              onChange={(v) => { setPeriod(v || undefined); setCalcResult(null) }}
+              onChange={(v) => {
+                setPeriod(v || undefined)
+                setCalcResult(null)
+              }}
               options={[
                 { value: 0, label: 'Любой период' },
                 { value: 3, label: '3 месяца' },
