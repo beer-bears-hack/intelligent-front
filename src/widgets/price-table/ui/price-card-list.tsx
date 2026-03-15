@@ -4,8 +4,13 @@ import dayjs from 'dayjs'
 import type { Price, ManualPrice } from '@shared/contracts'
 import { formatPrice } from '@shared/lib/format'
 
+interface PriceRow extends Price {
+  cteId: string
+  similarityScore: number
+}
+
 interface TableRow {
-  key: number
+  key: string
   price: number
   date: string | null
   source: string
@@ -16,10 +21,13 @@ interface TableRow {
 }
 
 interface PriceCardListProps {
-  prices: Price[]
+  prices: PriceRow[]
   manualPrices: ManualPrice[]
-  selectedIds: Set<number>
-  onToggle: (id: number) => void
+  selectedIds: Set<string>
+  onToggle: (id: string) => void
+  onToggleAll: (checked: boolean) => void
+  allChecked: boolean
+  someChecked: boolean
   manualSelectedIndices: Set<number>
   onToggleManual: (idx: number) => void
   loading: boolean
@@ -30,6 +38,9 @@ export function PriceCardList({
   manualPrices,
   selectedIds,
   onToggle,
+  onToggleAll,
+  allChecked,
+  someChecked,
   manualSelectedIndices,
   onToggleManual,
   loading,
@@ -44,7 +55,7 @@ export function PriceCardList({
 
   const rows: TableRow[] = [
     ...prices.map((p) => ({
-      key: p.contractId,
+      key: `${p.cteId}:${p.contractId}`,
       price: p.price,
       date: p.date,
       source: p.source,
@@ -53,7 +64,7 @@ export function PriceCardList({
       isManual: false,
     })),
     ...manualPrices.map((mp, idx) => ({
-      key: -(idx + 1),
+      key: `manual:${idx}`,
       price: mp.price,
       date: null,
       source: mp.reason,
@@ -68,9 +79,17 @@ export function PriceCardList({
   }
 
   return (
-    <List
+    <>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 16, marginBottom: 8 }}>
+        <Checkbox
+          checked={allChecked}
+          indeterminate={someChecked}
+          onChange={(e) => onToggleAll(e.target.checked)}
+        />
+        <Typography.Text type="secondary">Выбрать все</Typography.Text>
+      </div>
+      <List
       dataSource={rows}
-      style={{ marginTop: 16 }}
       renderItem={(row) => (
         <Card
           size="small"
@@ -125,6 +144,7 @@ export function PriceCardList({
           </div>
         </Card>
       )}
-    />
+      />
+    </>
   )
 }

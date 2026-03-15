@@ -59,4 +59,7 @@ export const calculateHandlers = [
       noDataReason: null,
     })
   }),
+
+  // POST /api/calculate/save
+  http.post('/api/calculate/save', () => HttpResponse.json(`item-${Date.now()}`)),
 ]

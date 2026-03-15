@@ -20,6 +20,7 @@ export function CalculationSummary({ data, loading }: CalculationSummaryProps) {
 
       {!loading && !data && <Typography.Text type="secondary">Выполните расчёт</Typography.Text>}
 
+      <div style={{ transition: 'opacity 0.2s ease', opacity: !loading && data ? 1 : 0 }}>
       {!loading && data && (
         <Descriptions column={1} size="small">
           <Descriptions.Item label="Цена за единицу">
@@ -58,6 +59,7 @@ export function CalculationSummary({ data, loading }: CalculationSummaryProps) {
           </Descriptions.Item>
         </Descriptions>
       )}
+      </div>
     </Card>
   )
 }
