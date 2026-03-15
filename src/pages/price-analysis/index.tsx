@@ -388,12 +388,17 @@ export default function PriceAnalysisPage() {
                 { value: 12, label: '12 месяцев' },
               ]}
             />
-            <Button onClick={() => setManualModalOpen(true)} icon={<PlusOutlined />}>
+            <Button
+              style={{ flex: '1 1 auto' }}
+              onClick={() => setManualModalOpen(true)}
+              icon={<PlusOutlined />}
+            >
               Добавить цену вручную
             </Button>
           </Flex>
           {region ? (
             <PriceTable
+              parentId={pricesQuery.data?.cteDto.cteId}
               prices={priceRows}
               manualPrices={manualPrices}
               selectedIds={definedPrices}
@@ -467,6 +472,12 @@ export default function PriceAnalysisPage() {
         }
         .price-row-manual:hover > td {
           background-color: #bae0ff !important;
+        }
+        .price-row-same {
+          background-color: #f6ffed !important;
+        }
+        .price-row-same:hover > td {
+          background-color: #d9f7be !important;
         }
         .cte-info-card .ant-card-head-wrapper {
           gap: 8px;
