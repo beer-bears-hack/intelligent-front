@@ -32,6 +32,16 @@ export const calculateItemRequest = z.object({
 })
 export type CalculateItemRequest = z.infer<typeof calculateItemRequest>
 
+export const cleanedDataItem = z.object({
+  price: z.number(),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), // ISO date
+  region: z.string(),
+  supplier: z.string(),
+  similarity: z.number(),
+  cteId: z.string(),
+  weight: z.number(),
+})
+
 export const calculateItemResponse = z.object({
   unitPrice: z.number(),
   totalPrice: z.number(),
@@ -45,6 +55,7 @@ export const calculateItemResponse = z.object({
   effectiveSampleSize: z.number(),
   outliersRemoved: z.number().int(),
   noDataReason: z.string().nullish(),
+  cleanedData: z.array(cleanedDataItem),
 })
 export type CalculateItemResponse = z.infer<typeof calculateItemResponse>
 
