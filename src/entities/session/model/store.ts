@@ -1,15 +1,25 @@
-import { z } from 'zod'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
+import { createSessionResponseSchema, type CreateSessionResponse } from '@/shared/contracts'
+
 import { api } from '@shared/api/axios-instance'
 import { SESSION_STORAGE_KEY } from '@shared/constants'
-import { type CreateSessionResponse, createSessionResponseSchema } from '@shared/contracts'
 
 interface SessionStore {
   sessionId: string | null
   isCreating: boolean
   ensureSession: () => Promise<string>
+  _hydrated: boolean
+}
+
+let resolveHydration: () => void
+const hydrationPromise = new Promise<void>((resolve) => {
+  resolveHydration = resolve
+})
+
+const resolveResolveHydr = () => {
+  resolveHydration()
 }
 
 export const useSessionStore = create<SessionStore>()(
@@ -17,11 +27,13 @@ export const useSessionStore = create<SessionStore>()(
     (set, get) => ({
       sessionId: null,
       isCreating: false,
+      _hydrated: false,
 
       ensureSession: async () => {
-        await useSessionStore.persist.rehydrate()
+        await hydrationPromise
 
         const { sessionId, isCreating } = get()
+
         if (sessionId) return sessionId
 
         if (isCreating) {
@@ -40,8 +52,8 @@ export const useSessionStore = create<SessionStore>()(
         try {
           const { data } = await api.post<CreateSessionResponse>('/sessions')
           const parsed = createSessionResponseSchema.parse(data)
-          set({ sessionId: parsed.session_id, isCreating: false })
-          return parsed.session_id
+          set({ sessionId: parsed.sessionId, isCreating: false })
+          return parsed.sessionId
         } catch (error) {
           set({ isCreating: false })
           throw error
@@ -51,15 +63,10 @@ export const useSessionStore = create<SessionStore>()(
     {
       name: SESSION_STORAGE_KEY,
       partialize: (state) => ({ sessionId: state.sessionId }),
+      onRehydrateStorage: () => resolveResolveHydr,
+
       merge: (persisted, current) => {
-        const result = z
-          .object({
-            sessionId: z
-              .string()
-              .min(1)
-              .refine((v) => v !== 'null'),
-          })
-          .safeParse(persisted)
+        const result = createSessionResponseSchema.safeParse(persisted)
         return { ...current, ...(result.success ? { sessionId: result.data.sessionId } : {}) }
       },
     },

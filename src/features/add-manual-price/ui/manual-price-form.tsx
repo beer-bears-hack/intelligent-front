@@ -1,6 +1,6 @@
 import { Form, Input, InputNumber, Modal } from 'antd'
 
-import type { ManualPrice } from '@entities/price'
+import type { ManualPrice } from '@shared/contracts'
 
 interface ManualPriceFormProps {
   open: boolean

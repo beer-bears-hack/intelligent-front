@@ -1,43 +1,54 @@
 import { z } from 'zod'
 
-export const searchRequestSchema = z.object({
-  query: z.string().min(1),
-  category: z.string().optional(),
-  manufacturer: z.string().optional(),
-  region_code: z.string().optional(),
+export const searchRequest = z.object({
+  query: z.string(),
+  category: z.string().nullish(),
+  manufacturer: z.string().nullish(),
 })
+export type SearchRequest = z.infer<typeof searchRequest>
 
-export type SearchRequest = z.infer<typeof searchRequestSchema>
+export const priceDto = z.object({
+  contractId: z.number().int(),
+  price: z.number(),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), // ISO date
+  source: z.string(),
+  isOutlier: z.boolean().nullish(),
+  reason: z.string().nullish(),
+})
+export type Price = z.infer<typeof priceDto>
 
-export const steItemSchema = z.object({
-  ste_id: z.string(),
+export const searchResult = z.object({
+  cteId: z.string(),
   name: z.string(),
-  characteristics: z.record(z.string(), z.union([z.string(), z.number()])),
-  similarity_score: z.number(),
+  characteristics: z.record(z.string(), z.string()),
+  similarityScore: z.number(),
   category: z.string(),
-  kpgz_code: z.string().optional(),
-  kpgz_name: z.string().optional(),
+  kpgzCode: z.string().nullish(),
+  kpgzName: z.string().nullish(),
+  prices: z.array(priceDto),
 })
+export type SearchResult = z.infer<typeof searchResult>
 
-export type SteItem = z.infer<typeof steItemSchema>
+export const searchResultArray = z.array(searchResult)
+export type SearchResultArray = z.infer<typeof searchResultArray>
 
-export const searchResponseSchema = z.object({
-  results: z.array(steItemSchema),
+export const searchResponse = z.object({
+  results: searchResultArray,
 })
+export type SearchResponse = z.infer<typeof searchResponse>
 
-export type SearchResponse = z.infer<typeof searchResponseSchema>
-
-export const filterOptionSchema = z.object({
-  value: z.string(),
-  label: z.string(),
+export const steDto = z.object({
+  id: z.number(),
+  cteId: z.string(),
+  cteName: z.string(),
+  category: z.string().nullish(),
+  manufacturer: z.string().nullish(),
+  characteristics: z.string().nullish(),
 })
+export type SteInfo = z.infer<typeof steDto>
 
-export const categoriesResponseSchema = z.object({
-  categories: z.array(filterOptionSchema),
+export const pricesResponse = z.object({
+  current: steDto,
+  results: searchResultArray,
 })
-
-export const manufacturersResponseSchema = z.object({
-  manufacturers: z.array(filterOptionSchema),
-})
-
-export const steDetailResponseSchema = steItemSchema
+export type PricesResponse = z.infer<typeof pricesResponse>

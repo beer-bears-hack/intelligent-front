@@ -1,10 +1,10 @@
 import { Button, Card, Empty, List, Spin, Tag, Typography } from 'antd'
 import { useNavigate } from 'react-router'
 
-import type { SteItem } from '@entities/ste'
+import type { SearchResult } from '@shared/contracts'
 
 interface SearchResultsCardListProps {
-  data: SteItem[]
+  data: SearchResult[]
   loading: boolean
 }
 
@@ -36,7 +36,7 @@ export function SearchResultsCardList({ data, loading }: SearchResultsCardListPr
         <Card
           size="small"
           style={{ marginBottom: 8, cursor: 'pointer' }}
-          onClick={() => navigate(`/price-analysis/${item.ste_id}`)}
+          onClick={() => navigate(`/price-analysis/${item.cteId}`)}
         >
           <Typography.Paragraph ellipsis={{ rows: 2 }} style={{ marginBottom: 4, fontWeight: 600 }}>
             {item.name}
@@ -45,8 +45,8 @@ export function SearchResultsCardList({ data, loading }: SearchResultsCardListPr
             <Typography.Text type="secondary" style={{ fontSize: 12 }}>
               {item.category}
             </Typography.Text>
-            <Tag variant="outlined" color={getScoreColor(item.similarity_score)}>
-              {(item.similarity_score * 100).toFixed(1)}%
+            <Tag variant="outlined" color={getScoreColor(item.similarityScore)}>
+              {(item.similarityScore * 100).toFixed(1)}%
             </Tag>
           </div>
           <Button
@@ -55,7 +55,7 @@ export function SearchResultsCardList({ data, loading }: SearchResultsCardListPr
             style={{ padding: 0, marginTop: 4 }}
             onClick={(e) => {
               e.stopPropagation()
-              void navigate(`/price-analysis/${item.ste_id}`)
+              void navigate(`/price-analysis/${item.cteId}`)
             }}
           >
             Анализ цен →

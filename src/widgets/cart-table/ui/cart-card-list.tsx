@@ -3,13 +3,12 @@ import { Button, Card, Empty, List, Space, Typography } from 'antd'
 
 import { DeleteItemButton } from '@features/manage-cart-item'
 
-import type { CartItem } from '@entities/session'
-
+import type { SessionItem } from '@shared/contracts'
 import { formatPrice } from '@shared/lib/format'
 
 interface CartCardListProps {
-  items: CartItem[]
-  onEdit: (item: CartItem) => void
+  items: SessionItem[]
+  onEdit: (item: SessionItem) => void
   onDelete: (itemId: string) => void
   deletingId: string | null
 }
@@ -28,8 +27,7 @@ export function CartCardList({ items, onEdit, onDelete, deletingId }: CartCardLi
             {item.name}
           </Typography.Paragraph>
           <Typography.Text>
-            {item.quantity} × {formatPrice(item.unit_price)} ={' '}
-            <b>{formatPrice(item.total_price)}</b>
+            {item.quantity} × {formatPrice(item.unitPrice)} = <b>{formatPrice(item.totalPrice)}</b>
           </Typography.Text>
           <div style={{ marginTop: 8 }}>
             <Space>
@@ -37,8 +35,8 @@ export function CartCardList({ items, onEdit, onDelete, deletingId }: CartCardLi
                 Изменить
               </Button>
               <DeleteItemButton
-                onConfirm={() => onDelete(item.item_id)}
-                loading={deletingId === item.item_id}
+                onConfirm={() => onDelete(item.name)}
+                loading={deletingId === item.name}
               />
             </Space>
           </div>

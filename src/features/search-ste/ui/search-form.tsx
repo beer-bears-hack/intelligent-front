@@ -3,13 +3,13 @@ import { useQuery } from '@tanstack/react-query'
 import { Col, Form, Input, Row, Select } from 'antd'
 import { useState } from 'react'
 
-import type { SearchRequest } from '@entities/ste'
 import { getCategories, getManufacturers } from '@entities/ste'
 
+import type { SearchRequest } from '@/shared/contracts'
 import { Button } from '@/shared/ui/button'
 import { FormItemWithTooltip } from '@/shared/ui/form-item-with-tooltip'
 
-interface SearchFormProps {
+type SearchFormProps = {
   onSearch: (values: SearchRequest) => void
   loading: boolean
 }
@@ -36,7 +36,6 @@ export function SearchForm({ onSearch, loading }: SearchFormProps) {
       query: values.query.trim(),
       ...(values.category ? { category: values.category } : {}),
       ...(values.manufacturer ? { manufacturer: values.manufacturer } : {}),
-      ...(values.region_code ? { region_code: values.region_code } : {}),
     }
     onSearch(params)
   }
@@ -84,7 +83,7 @@ export function SearchForm({ onSearch, loading }: SearchFormProps) {
                 }
               }}
               loading={categoriesQuery.isLoading}
-              options={categoriesQuery.data?.categories}
+              options={categoriesQuery.data?.map((item) => ({ label: item, value: item })) ?? []}
             />
           </Form.Item>
         </Col>
@@ -104,7 +103,7 @@ export function SearchForm({ onSearch, loading }: SearchFormProps) {
                 }
               }}
               loading={manufacturersQuery.isLoading}
-              options={manufacturersQuery.data?.manufacturers}
+              options={manufacturersQuery.data?.map((item) => ({ label: item, value: item })) ?? []}
             />
           </Form.Item>
         </Col>

@@ -1,8 +1,8 @@
+import type { Session } from '@/shared/contracts'
+
 import { api } from '@shared/api/axios-instance'
 
-import type { SessionState } from '../model/types'
-
-export async function getSession(sessionId: string): Promise<SessionState> {
-  const { data } = await api.get<SessionState>(`/sessions/${sessionId}`)
+export async function getSession(sessionId: string): Promise<Session> {
+  const { data } = await api.get<Session>(`/sessions/${sessionId}`)
   return data
 }

@@ -4,9 +4,9 @@ import { steItems } from '../data/search-results'
 
 export const steInfoHandlers = [
   // GET /api/ste/:steId — get ste info
-  http.get('/api/ste/:ste_id', async ({ params }) => {
+  http.get('/api/ste/:cteId', async ({ params }) => {
     await delay(300)
 
-    return HttpResponse.json(steItems.find((item) => item.ste_id === params.ste_id) ?? steItems[0])
+    return HttpResponse.json(steItems.find((item) => item.cteId === params.cteId) ?? steItems[0])
   }),
 ]

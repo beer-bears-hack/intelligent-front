@@ -1,6 +1,6 @@
-import { api } from '@shared/api/axios-instance'
+import type { PricesResponse } from '@/shared/contracts'
 
-import type { PricesResponse } from '../model/types'
+import { api } from '@shared/api/axios-instance'
 
 export async function getPrices(
   steId: string,

@@ -1,11 +1,11 @@
 import { Modal, InputNumber, Form } from 'antd'
 import { useState } from 'react'
 
-import type { CartItem } from '@entities/session'
+import type { SessionItem } from '@shared/contracts'
 
 interface EditItemModalProps {
   open: boolean
-  item: CartItem | null
+  item: SessionItem | null
   onClose: () => void
   onSave: (itemId: string, quantity: number) => void
   loading: boolean
@@ -24,7 +24,7 @@ export function EditItemModal({ open, item, onClose, onSave, loading }: EditItem
 
   const handleOk = () => {
     if (item) {
-      onSave(item.item_id, quantity)
+      onSave(item.name, quantity)
     }
   }
 
@@ -37,7 +37,7 @@ export function EditItemModal({ open, item, onClose, onSave, loading }: EditItem
       confirmLoading={loading}
       okText="Сохранить"
       cancelText="Отмена"
-      destroyOnClose
+      destroyOnHidden
     >
       <Form layout="vertical">
         <Form.Item label="Наименование">

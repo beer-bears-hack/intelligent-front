@@ -26,7 +26,7 @@ export function BottomTabBar() {
     queryKey: ['session', sessionId],
     queryFn: () => getSession(sessionId!),
     enabled: !!sessionId,
-    select: (data) => data.items.length,
+    select: (data) => data.session.items.length,
   })
 
   const activePath = location.pathname

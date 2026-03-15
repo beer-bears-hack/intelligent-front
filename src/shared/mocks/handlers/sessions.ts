@@ -10,8 +10,8 @@ export const sessionHandlers = [
     const sessionId = `mock-session-${sessionCounter++}`
     cartStore.ensureSession(sessionId)
     return HttpResponse.json({
-      session_id: sessionId,
-      created_at: new Date().toISOString(),
+      sessionId: sessionId,
+      createdAt: new Date().toISOString(),
     })
   }),
 
