@@ -137,7 +137,9 @@ export function PriceCardList({
                   )}
                   {row.isSame && !row.isOutlier && (
                     <Tooltip title="Полностью соответствует выбранной СТЕ">
-                      <InfoCircleOutlined style={{ color: '#52c41a', fontSize: 14, flexShrink: 0 }} />
+                      <InfoCircleOutlined
+                        style={{ color: '#52c41a', fontSize: 14, flexShrink: 0 }}
+                      />
                     </Tooltip>
                   )}
                 </div>
