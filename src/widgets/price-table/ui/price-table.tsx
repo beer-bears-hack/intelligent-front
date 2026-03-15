@@ -1,4 +1,4 @@
-import { WarningOutlined } from '@ant-design/icons'
+import { InfoCircleOutlined, WarningOutlined } from '@ant-design/icons'
 import { Checkbox, Table, Tooltip } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import dayjs from 'dayjs'
@@ -27,6 +27,7 @@ interface TableRow {
   isOutlier: boolean
   reason?: string
   isManual: boolean
+  isSame: boolean
   manualIndex?: number
 }
 
@@ -39,6 +40,7 @@ interface PriceTableProps {
   manualSelectedIndices: Set<number>
   onToggleManual: (idx: number) => void
   loading: boolean
+  parentId?: string
 }
 
 export function PriceTable({
@@ -50,6 +52,7 @@ export function PriceTable({
   manualSelectedIndices,
   onToggleManual,
   loading,
+  parentId,
 }: PriceTableProps) {
   const isMobile = useIsMobile()
 
@@ -63,6 +66,7 @@ export function PriceTable({
       isOutlier: p.isOutlier ?? false,
       reason: p.reason ?? undefined,
       isManual: false,
+      isSame: !!parentId && p.cteId === parentId,
     }))
 
     const manualRows: TableRow[] = manualPrices.map((mp, idx) => ({
@@ -72,12 +76,13 @@ export function PriceTable({
       date: null,
       source: mp.reason,
       isOutlier: false,
+      isSame: false,
       isManual: true,
       manualIndex: idx,
     }))
 
     return [...apiRows, ...manualRows]
-  }, [prices, manualPrices])
+  }, [prices, manualPrices, parentId])
 
   const totalCount = prices.length + manualPrices.length
   const selectedCount = selectedIds.size + manualSelectedIndices.size
@@ -97,6 +102,7 @@ export function PriceTable({
         manualSelectedIndices={manualSelectedIndices}
         onToggleManual={onToggleManual}
         loading={loading}
+        parentId={parentId}
       />
     )
   }
@@ -138,6 +144,11 @@ export function PriceTable({
               <WarningOutlined style={{ color: '#faad14', fontSize: 14 }} />
             </Tooltip>
           )}
+          {record.isSame && !record.isOutlier && (
+            <Tooltip title="Полностью соответствует выбранной СТЕ">
+              <InfoCircleOutlined style={{ color: '#52c41a', fontSize: 14 }} />
+            </Tooltip>
+          )}
         </span>
       ),
     },
@@ -177,6 +188,7 @@ export function PriceTable({
       rowClassName={(record) => {
         if (record.isOutlier && !record.isManual) return 'price-row-outlier'
         if (record.isManual) return 'price-row-manual'
+        if (record.isSame) return 'price-row-same'
         return ''
       }}
       style={{ marginTop: 16 }}

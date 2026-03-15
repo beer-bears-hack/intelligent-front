@@ -1,4 +1,4 @@
-import { WarningOutlined } from '@ant-design/icons'
+import { InfoCircleOutlined, WarningOutlined } from '@ant-design/icons'
 import { Card, Checkbox, Empty, List, Skeleton, Tooltip, Typography } from 'antd'
 import dayjs from 'dayjs'
 
@@ -20,6 +20,7 @@ interface TableRow {
   isOutlier: boolean
   reason?: string
   isManual: boolean
+  isSame: boolean
   manualIndex?: number
 }
 
@@ -34,6 +35,7 @@ interface PriceCardListProps {
   manualSelectedIndices: Set<number>
   onToggleManual: (idx: number) => void
   loading: boolean
+  parentId?: string
 }
 
 export function PriceCardList({
@@ -47,6 +49,7 @@ export function PriceCardList({
   manualSelectedIndices,
   onToggleManual,
   loading,
+  parentId,
 }: PriceCardListProps) {
   if (loading) {
     return <Skeleton active paragraph={{ rows: 4 }} />
@@ -62,6 +65,7 @@ export function PriceCardList({
       isOutlier: p.isOutlier ?? false,
       reason: p.reason ?? undefined,
       isManual: false,
+      isSame: !!parentId && p.cteId === parentId,
     })),
     ...manualPrices.map((mp, idx) => ({
       key: `manual:${idx}`,
@@ -70,6 +74,7 @@ export function PriceCardList({
       date: null,
       source: mp.reason,
       isOutlier: false,
+      isSame: false,
       isManual: true,
       manualIndex: idx,
     })),
@@ -103,7 +108,9 @@ export function PriceCardList({
                   ? '3px solid #DB2B21'
                   : row.isManual
                     ? '3px solid #1677ff'
-                    : undefined,
+                    : row.isSame
+                      ? '3px solid #52c41a'
+                      : undefined,
             }}
           >
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
@@ -126,6 +133,11 @@ export function PriceCardList({
                   {row.isOutlier && !row.isManual && (
                     <Tooltip title={row.reason}>
                       <WarningOutlined style={{ color: '#faad14', fontSize: 14, flexShrink: 0 }} />
+                    </Tooltip>
+                  )}
+                  {row.isSame && !row.isOutlier && (
+                    <Tooltip title="Полностью соответствует выбранной СТЕ">
+                      <InfoCircleOutlined style={{ color: '#52c41a', fontSize: 14, flexShrink: 0 }} />
                     </Tooltip>
                   )}
                 </div>
