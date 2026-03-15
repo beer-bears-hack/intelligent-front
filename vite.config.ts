@@ -44,7 +44,7 @@ export default defineConfig({
         name: 'НМЦК Калькулятор',
         short_name: 'НМЦК',
         description: 'Интеллектуальный сервис обоснования начальной цены контракта',
-        theme_color: '#1677ff',
+        theme_color: '#e7eef7',
         background_color: '#ffffff',
         display: 'standalone',
         start_url: '/',
