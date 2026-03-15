@@ -36,7 +36,7 @@ import { PageContainer } from '@shared/ui/page-container'
 import { METHOD_OPTIONS } from './model/constants'
 
 export default function PriceAnalysisPage() {
-  const { steId } = useParams<{ steId: string }>()
+  const { cteId } = useParams<{ cteId: string }>()
   const navigate = useNavigate()
   const { notification } = App.useApp()
   const ensureSession = useSessionStore((s) => s.ensureSession)
@@ -55,9 +55,9 @@ export default function PriceAnalysisPage() {
   const [period, setPeriod] = useState<number | undefined>()
 
   const pricesQuery = useQuery({
-    queryKey: ['prices', steId, region, period],
-    queryFn: () => getPrices(steId!, { region, period }),
-    enabled: !!steId,
+    queryKey: ['prices', cteId, region, period],
+    queryFn: () => getPrices(cteId!, { region, period }),
+    enabled: !!cteId,
   })
 
   const regionsQuery = useQuery({
