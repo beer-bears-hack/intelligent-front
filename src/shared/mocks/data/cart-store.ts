@@ -1,45 +1,37 @@
 interface MockCartItem {
-  item_id: string
-  ste_id: string | null
   name: string
+  category: string
   quantity: number
-  unit_price: number
-  total_price: number
-  justification_data?: {
-    used_contract_ids: number[]
-    manual_prices: { price: number; source: string }[]
-  }
+  unitPrice: number
+  totalPrice: number
 }
 
 const store = new Map<string, MockCartItem[]>()
-
-let nextItemId = 1
 
 export const cartStore = {
   getItems(sessionId: string): MockCartItem[] {
     return store.get(sessionId) ?? []
   },
 
-  addItem(sessionId: string, item: Omit<MockCartItem, 'item_id'>): MockCartItem {
+  addItem(sessionId: string, item: MockCartItem): MockCartItem {
     const items = this.getItems(sessionId)
-    const newItem: MockCartItem = { ...item, item_id: `item-${nextItemId++}` }
-    items.push(newItem)
+    items.push(item)
     store.set(sessionId, items)
-    return newItem
+    return item
   },
 
   updateItem(
     sessionId: string,
     itemId: string,
-    updates: { quantity?: number; unit_price?: number },
+    updates: { quantity?: number; unitPrice?: number },
   ): MockCartItem | undefined {
     const items = this.getItems(sessionId)
-    const item = items.find((i) => i.item_id === itemId)
+    const item = items.find((i) => i.name === itemId)
     if (!item) return undefined
 
     if (updates.quantity !== undefined) item.quantity = updates.quantity
-    if (updates.unit_price !== undefined) item.unit_price = updates.unit_price
-    item.total_price = item.quantity * item.unit_price
+    if (updates.unitPrice !== undefined) item.unitPrice = updates.unitPrice
+    item.totalPrice = item.quantity * item.unitPrice
 
     store.set(sessionId, items)
     return item
@@ -47,7 +39,7 @@ export const cartStore = {
 
   deleteItem(sessionId: string, itemId: string): boolean {
     const items = this.getItems(sessionId)
-    const index = items.findIndex((i) => i.item_id === itemId)
+    const index = items.findIndex((i) => i.name === itemId)
     if (index === -1) return false
     items.splice(index, 1)
     store.set(sessionId, items)
@@ -55,7 +47,7 @@ export const cartStore = {
   },
 
   getTotal(sessionId: string): number {
-    return this.getItems(sessionId).reduce((sum, i) => sum + i.total_price, 0)
+    return this.getItems(sessionId).reduce((sum, i) => sum + i.totalPrice, 0)
   },
 
   ensureSession(sessionId: string): void {

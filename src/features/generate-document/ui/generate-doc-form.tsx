@@ -23,18 +23,18 @@ export function GenerateDocForm({ onGenerate, loading }: GenerateDocFormProps) {
         form={form}
         layout="vertical"
         onFinish={handleFinish}
-        initialValues={{ include_cover_page: true, signer_name: '' }}
+        initialValues={{ includeCoverPage: true, signerName: '' }}
         autoComplete="off"
       >
         <FormItemWithTooltip
           label="ФИО подписанта"
-          name="signer_name"
+          name="signerName"
           rules={[{ required: true, message: 'Введите ФИО подписанта' }]}
         >
           <Input placeholder="Иванов И.И." autoComplete="off" />
         </FormItemWithTooltip>
 
-        <Form.Item name="include_cover_page" valuePropName="checked">
+        <Form.Item name="includeCoverPage" valuePropName="checked">
           <Checkbox>Включить титульную страницу</Checkbox>
         </Form.Item>
 

@@ -6,8 +6,8 @@ export const documentHandlers = [
     await delay(500)
 
     return HttpResponse.json({
-      file_url: '/api/documents/download/mock-doc-001',
-      generated_at: new Date().toISOString(),
+      fileUrl: '/api/documents/download/mock-doc-001',
+      generatedAt: new Date().toISOString(),
     })
   }),
 

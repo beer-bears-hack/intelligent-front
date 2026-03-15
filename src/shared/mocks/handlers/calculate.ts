@@ -7,9 +7,12 @@ export const calculateHandlers = [
   http.post('/api/calculate/item', async ({ request }) => {
     const body = (await request.json()) as {
       quantity: number
-      selected_price_ids: number[]
-      manual_prices?: { price: number; source: string }[]
+      items: Array<
+        | { contractId: string; cteId: string; isOutlier?: boolean; similarity: number }
+        | { price: number; reason: string; similarity: number }
+      >
       method: string
+      region?: string
     }
 
     // Gather selected prices from all STE data
@@ -18,14 +21,13 @@ export const calculateHandlers = [
       ...generateFallbackPrices('fallback'),
     ]
 
-    const selectedPrices = allPrices
-      .filter((p) => body.selected_price_ids.includes(p.id))
-      .map((p) => p.price)
-
-    // Add manual prices
-    if (body.manual_prices) {
-      for (const mp of body.manual_prices) {
-        selectedPrices.push(mp.price)
+    const selectedPrices: number[] = []
+    for (const item of body.items) {
+      if ('contractId' in item) {
+        const found = allPrices.find((p) => String(p.contractId) === item.contractId)
+        if (found) selectedPrices.push(found.price)
+      } else {
+        selectedPrices.push(item.price)
       }
     }
 
@@ -43,14 +45,18 @@ export const calculateHandlers = [
     const totalPrice = Math.round(unitPrice * body.quantity * 100) / 100
 
     return HttpResponse.json({
-      unit_price: unitPrice,
-      total_price: totalPrice,
-      price_range: {
+      unitPrice,
+      totalPrice,
+      priceRange: {
         min: Math.min(...selectedPrices),
         max: Math.max(...selectedPrices),
       },
-      coeff_variation: Math.round(coeffVariation * 100) / 100,
-      is_homogeneous: coeffVariation <= 33,
+      coeffVariation: Math.round(coeffVariation * 100) / 100,
+      isHomogeneous: coeffVariation <= 33,
+      quantity: body.quantity,
+      effectiveSampleSize: selectedPrices.length,
+      outliersRemoved: 0,
+      noDataReason: null,
     })
   }),
 ]

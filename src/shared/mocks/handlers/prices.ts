@@ -9,8 +9,26 @@ export const priceHandlers = [
     const prices = pricesBySteId[steId] ?? generateFallbackPrices(steId)
 
     return HttpResponse.json({
-      ste_id: steId,
-      prices,
+      cteDto: {
+        id: 1,
+        cteId: steId,
+        cteName: `СТЕ ${steId}`,
+        category: 'Офисные принадлежности',
+        manufacturer: null,
+        characteristics: null,
+      },
+      results: [
+        {
+          cteId: steId,
+          name: `СТЕ ${steId}`,
+          characteristics: {},
+          similarityScore: 1,
+          category: 'Офисные принадлежности',
+          kpgzCode: null,
+          kpgzName: null,
+          prices,
+        },
+      ],
     })
   }),
 ]

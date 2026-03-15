@@ -44,8 +44,8 @@ export function SearchResultsTable({ data, loading }: SearchResultsTableProps) {
     },
     {
       title: 'Релевантность',
-      dataIndex: 'similarity_score',
-      key: 'similarity_score',
+      dataIndex: 'similarityScore',
+      key: 'similarityScore',
       minWidth: 130,
       align: 'center',
       sorter: (a, b) => a.similarityScore - b.similarityScore,
@@ -79,7 +79,7 @@ export function SearchResultsTable({ data, loading }: SearchResultsTableProps) {
     <Table<SearchResult>
       columns={columns}
       dataSource={data}
-      rowKey="ste_id"
+      rowKey="cteId"
       loading={loading}
       locale={{ emptyText: <Empty description="Нет результатов" /> }}
       pagination={{ pageSize: 10, showSizeChanger: false }}

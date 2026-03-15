@@ -70,9 +70,9 @@ export default function CartPage() {
 
   const docMutation = useMutation({
     mutationFn: async (settings: DocumentSettings) => {
-      const response = await generateDocument({ session_id: sessionId!, settings })
-      const blob = await downloadDocument(response.file_url)
-      const filename = response.file_url.split('/').pop() ?? 'report.docx'
+      const response = await generateDocument({ sessionId: sessionId!, settings })
+      const blob = await downloadDocument(response.fileUrl)
+      const filename = response.fileUrl.split('/').pop() ?? 'report.docx'
       downloadBlob(blob, filename)
       return response
     },

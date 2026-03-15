@@ -20,8 +20,11 @@ export const sessionHandlers = [
     const sid = params.sid as string
     const items = cartStore.getItems(sid)
     return HttpResponse.json({
-      items,
-      total_price: cartStore.getTotal(sid),
+      id: sid,
+      createdAt: new Date().toISOString(),
+      session: {
+        items,
+      },
     })
   }),
 ]

@@ -126,7 +126,7 @@ export function PriceTable({
     },
     {
       title: 'Статус',
-      dataIndex: 'is_outlier',
+      dataIndex: 'isOutlier',
       minWidth: 120,
       render: (_: unknown, record: TableRow) => {
         if (record.isManual) {

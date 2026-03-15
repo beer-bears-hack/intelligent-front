@@ -7,38 +7,30 @@ export const cartHandlers = [
   http.post('/api/sessions/:sid/items', async ({ params, request }) => {
     const sid = params.sid as string
     const body = (await request.json()) as {
-      ste_id: string | null
+      cteId: string | null
       name: string
       quantity: number
-      unit_price: number
-      total_price: number
-      justification_data?: {
-        used_contract_ids: number[]
-        manual_prices: { price: number; source: string }[]
-      }
+      unitPrice: number
+      totalPrice: number
     }
 
     cartStore.ensureSession(sid)
     const item = cartStore.addItem(sid, {
-      ste_id: body.ste_id,
       name: body.name,
+      category: '',
       quantity: body.quantity,
-      unit_price: body.unit_price,
-      total_price: body.total_price,
-      justification_data: body.justification_data,
+      unitPrice: body.unitPrice,
+      totalPrice: body.totalPrice,
     })
 
-    return HttpResponse.json({
-      item_id: item.item_id,
-      cart_total: cartStore.getTotal(sid),
-    })
+    return HttpResponse.json(item)
   }),
 
   // PUT /api/sessions/:sid/items/:itemId — update item
   http.put('/api/sessions/:sid/items/:itemId', async ({ params, request }) => {
     const sid = params.sid as string
     const itemId = params.itemId as string
-    const updates = (await request.json()) as { quantity?: number; unit_price?: number }
+    const updates = (await request.json()) as { quantity?: number; unitPrice?: number }
 
     const updated = cartStore.updateItem(sid, itemId, updates)
     if (!updated) {
