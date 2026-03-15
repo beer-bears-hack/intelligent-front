@@ -19,7 +19,7 @@ export const searchHandlers = [
       (item) =>
         item.name.toLowerCase().includes(q) ||
         item.category.toLowerCase().includes(q) ||
-        (item.kpgz_name?.toLowerCase().includes(q) ?? false),
+        (item.kpgzName?.toLowerCase().includes(q) ?? false),
     )
 
     if (body.category) {

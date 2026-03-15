@@ -28,11 +28,11 @@ export function AppHeader() {
     queryKey: ['session', sessionId],
     queryFn: () => getSession(sessionId!),
     enabled: !!sessionId,
-    select: (data) => data.items.length,
+    select: (data) => data.session.items.length,
   })
 
   const navItems = [
-    { key: '/search', icon: <SearchOutlined />, label: 'Поиск СТЕ' },
+    { key: '/search', icon: <SearchOutlined />, label: 'Поиск' },
     {
       key: '/cart',
       icon: <ProfileOutlined />,

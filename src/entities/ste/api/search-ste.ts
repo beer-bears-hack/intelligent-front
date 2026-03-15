@@ -1,10 +1,16 @@
-import { api } from '@shared/api/axios-instance'
-import { searchRequestSchema } from '@shared/contracts'
+import {
+  searchRequest,
+  searchResponse,
+  type SearchRequest,
+  type SearchResponse,
+} from '@/shared/contracts'
 
-import type { SearchRequest, SearchResponse } from '../model/types'
+import { api } from '@shared/api/axios-instance'
 
 export async function searchSte(params: SearchRequest): Promise<SearchResponse> {
-  const validated = searchRequestSchema.parse(params)
+  const validated = searchRequest.parse(params)
+
   const { data } = await api.post<SearchResponse>('/search', validated)
-  return data
+
+  return searchResponse.parse(data)
 }

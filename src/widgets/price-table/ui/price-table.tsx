@@ -3,7 +3,7 @@ import type { ColumnsType } from 'antd/es/table'
 import dayjs from 'dayjs'
 import { useMemo } from 'react'
 
-import type { PriceEntry, ManualPrice } from '@entities/price'
+import type { Price, ManualPrice } from '@/shared/contracts'
 
 import { formatPrice } from '@shared/lib/format'
 import { useIsMobile } from '@shared/lib/use-is-mobile'
@@ -16,14 +16,14 @@ interface TableRow {
   price: number
   date: string | null
   source: string
-  is_outlier: boolean
+  isOutlier: boolean
   reason?: string
   isManual: boolean
   manualIndex?: number
 }
 
 interface PriceTableProps {
-  prices: PriceEntry[]
+  prices: Price[]
   manualPrices: ManualPrice[]
   selectedIds: Set<number>
   onToggle: (id: number) => void
@@ -45,12 +45,12 @@ export function PriceTable({
 
   const dataSource = useMemo<TableRow[]>(() => {
     const apiRows: TableRow[] = prices.map((p) => ({
-      key: p.id,
+      key: p.contractId,
       price: p.price,
       date: p.date,
       source: p.source,
-      is_outlier: p.is_outlier,
-      reason: p.reason,
+      isOutlier: p.isOutlier ?? false,
+      reason: p.reason ?? undefined,
       isManual: false,
     }))
 
@@ -58,8 +58,8 @@ export function PriceTable({
       key: -(idx + 1),
       price: mp.price,
       date: null,
-      source: mp.source,
-      is_outlier: false,
+      source: mp.reason,
+      isOutlier: false,
       isManual: true,
       manualIndex: idx,
     }))
@@ -136,7 +136,7 @@ export function PriceTable({
             </Tag>
           )
         }
-        if (record.is_outlier) {
+        if (record.isOutlier) {
           return (
             <Tooltip title={record.reason}>
               <Tag variant="outlined" color="red">
@@ -157,7 +157,7 @@ export function PriceTable({
       loading={loading}
       pagination={false}
       size="small"
-      rowClassName={(record) => (record.is_outlier && !record.isManual ? 'price-row-outlier' : '')}
+      rowClassName={(record) => (record.isOutlier && !record.isManual ? 'price-row-outlier' : '')}
       style={{ marginTop: 16 }}
       scroll={{ x: 'max-content' }}
     />

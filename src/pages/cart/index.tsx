@@ -11,9 +11,9 @@ import { EditItemModal } from '@features/manage-cart-item'
 
 import { generateDocument, downloadDocument } from '@entities/document'
 import type { DocumentSettings } from '@entities/document'
-import type { CartItem } from '@entities/session'
 import { useSessionStore, getSession, updateItem, deleteItem } from '@entities/session'
 
+import type { SessionItem } from '@shared/contracts'
 import { downloadBlob } from '@shared/lib/download'
 import { formatPrice } from '@shared/lib/format'
 import { getErrorMessage } from '@shared/lib/get-error-message'
@@ -27,7 +27,7 @@ export default function CartPage() {
   const sessionId = useSessionStore((s) => s.sessionId)
   const isMobile = useIsMobile()
 
-  const [editingItem, setEditingItem] = useState<CartItem | null>(null)
+  const [editingItem, setEditingItem] = useState<SessionItem | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
   const { data } = useQuery({
@@ -105,7 +105,7 @@ export default function CartPage() {
     docMutation.mutate(settings)
   }
 
-  const hasItems = !!data?.items?.length
+  const hasItems = !!data?.session.items.length
 
   return (
     <PageContainer
@@ -115,7 +115,7 @@ export default function CartPage() {
       {sessionId ? (
         <>
           <CartTable
-            items={data?.items ?? []}
+            items={data?.session.items ?? []}
             onEdit={setEditingItem}
             onDelete={handleDelete}
             deletingId={deletingId}
@@ -131,7 +131,10 @@ export default function CartPage() {
               }}
             >
               <Typography.Title level={4} style={{ margin: 0 }}>
-                Итого: {formatPrice(data?.total_price ?? 0)}
+                Итого:{' '}
+                {formatPrice(
+                  data?.session.items.reduce((sum, cur) => sum + cur.totalPrice, 0) ?? 0,
+                )}
               </Typography.Title>
               <Button
                 block={isMobile}
@@ -151,7 +154,7 @@ export default function CartPage() {
                   <Alert
                     style={{ marginTop: 16 }}
                     type="success"
-                    message="Документ успешно сформирован"
+                    title="Документ успешно сформирован"
                     description="Файл загружен автоматически."
                     showIcon
                   />

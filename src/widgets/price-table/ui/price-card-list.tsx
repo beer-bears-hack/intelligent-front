@@ -1,8 +1,7 @@
 import { Card, Checkbox, Empty, List, Spin, Tag, Tooltip, Typography } from 'antd'
 import dayjs from 'dayjs'
 
-import type { PriceEntry, ManualPrice } from '@entities/price'
-
+import type { Price, ManualPrice } from '@shared/contracts'
 import { formatPrice } from '@shared/lib/format'
 
 interface TableRow {
@@ -10,14 +9,14 @@ interface TableRow {
   price: number
   date: string | null
   source: string
-  is_outlier: boolean
+  isOutlier: boolean
   reason?: string
   isManual: boolean
   manualIndex?: number
 }
 
 interface PriceCardListProps {
-  prices: PriceEntry[]
+  prices: Price[]
   manualPrices: ManualPrice[]
   selectedIds: Set<number>
   onToggle: (id: number) => void
@@ -45,20 +44,20 @@ export function PriceCardList({
 
   const rows: TableRow[] = [
     ...prices.map((p) => ({
-      key: p.id,
+      key: p.contractId,
       price: p.price,
       date: p.date,
       source: p.source,
-      is_outlier: p.is_outlier,
-      reason: p.reason,
+      isOutlier: p.isOutlier ?? false,
+      reason: p.reason ?? undefined,
       isManual: false,
     })),
     ...manualPrices.map((mp, idx) => ({
       key: -(idx + 1),
       price: mp.price,
       date: null,
-      source: mp.source,
-      is_outlier: false,
+      source: mp.reason,
+      isOutlier: false,
       isManual: true,
       manualIndex: idx,
     })),
@@ -77,7 +76,7 @@ export function PriceCardList({
           size="small"
           style={{
             marginBottom: 8,
-            borderLeft: row.is_outlier && !row.isManual ? '3px solid #DB2B21' : undefined,
+            borderLeft: row.isOutlier && !row.isManual ? '3px solid #DB2B21' : undefined,
           }}
         >
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
@@ -114,7 +113,7 @@ export function PriceCardList({
                     Ручная
                   </Tag>
                 )}
-                {row.is_outlier && !row.isManual && (
+                {row.isOutlier && !row.isManual && (
                   <Tooltip title={row.reason}>
                     <Tag variant="outlined" color="red" style={{ marginInlineEnd: 0 }}>
                       Выброс

@@ -23,12 +23,11 @@ import { ManualPriceForm } from '@features/add-manual-price'
 import { addToCart } from '@features/add-to-cart'
 
 import { calculateItem } from '@entities/calculation'
-import type { CalculateItemResponse, CalculationMethod } from '@entities/calculation'
+import type { CalculationMethod } from '@entities/calculation'
 import { getPrices } from '@entities/price'
-import type { ManualPrice } from '@entities/price'
 import { useSessionStore } from '@entities/session'
-import { getSte } from '@entities/ste'
 
+import type { ManualPrice, CalculateItemResponse } from '@shared/contracts'
 import { getErrorMessage } from '@shared/lib/get-error-message'
 import { useIsMobile } from '@shared/lib/use-is-mobile'
 import { PageContainer } from '@shared/ui/page-container'
@@ -42,7 +41,7 @@ export default function PriceAnalysisPage() {
   const ensureSession = useSessionStore((s) => s.ensureSession)
   const isMobile = useIsMobile()
 
-  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
+  const [definedPrices, setDefinedPrices] = useState<Set<number>>(new Set())
   const [manualPrices, setManualPrices] = useState<ManualPrice[]>([])
   const [manualSelectedIndices, setManualSelectedIndices] = useState<Set<number>>(new Set())
   const [manualModalOpen, setManualModalOpen] = useState(false)
@@ -51,77 +50,74 @@ export default function PriceAnalysisPage() {
   const [method, setMethod] = useState<CalculationMethod>('comparable_market_prices')
   const [calcResult, setCalcResult] = useState<CalculateItemResponse | null>(null)
 
-  const steQuery = useQuery({
-    queryKey: ['ste', steId],
-    queryFn: () => getSte(steId!),
-    enabled: !!steId,
-  })
-
-  // Fetch prices (no region/period filters)
   const pricesQuery = useQuery({
     queryKey: ['prices', steId],
     queryFn: () => getPrices(steId!),
     enabled: !!steId,
   })
 
-  const prices = useMemo(() => pricesQuery.data?.prices ?? [], [pricesQuery.data])
+  const prices = useMemo(
+    () => pricesQuery.data?.results.flatMap((item) => item.prices) ?? [],
+    [pricesQuery.data],
+  )
 
-  // Auto-select non-outlier prices when data changes
   const defaultSelectedIds = useMemo(() => {
     if (prices.length === 0) return new Set<number>()
-    return new Set(prices.filter((p) => !p.is_outlier).map((p) => p.id))
+    return new Set(prices.filter((p) => !p.isOutlier).map((p) => p.contractId))
   }, [prices])
 
-  // Sync selection when prices change (reset to defaults)
   const [prevPrices, setPrevPrices] = useState(prices)
   if (prices !== prevPrices) {
     setPrevPrices(prices)
-    setSelectedIds(defaultSelectedIds)
+    setDefinedPrices(defaultSelectedIds)
   }
 
-  // Toggle price selection
   const handleToggle = useCallback((id: number) => {
-    setSelectedIds((prev) => {
+    setDefinedPrices((prev) => {
       const next = new Set(prev)
-      if (next.has(id)) {
-        next.delete(id)
-      } else {
-        next.add(id)
-      }
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
       return next
     })
   }, [])
 
-  // Toggle manual price selection
   const handleToggleManual = useCallback((idx: number) => {
     setManualSelectedIndices((prev) => {
       const next = new Set(prev)
-      if (next.has(idx)) {
-        next.delete(idx)
-      } else {
-        next.add(idx)
-      }
+      if (next.has(idx)) next.delete(idx)
+      else next.add(idx)
       return next
     })
   }, [])
 
-  // Add manual price
   const handleAddManualPrice = useCallback((p: ManualPrice) => {
     setManualPrices((prev) => {
       const next = [...prev, p]
-      // Auto-select all manual indices
       setManualSelectedIndices(new Set(next.map((_, i) => i)))
       return next
     })
   }, [])
 
-  // Filter manual prices by selected indices
   const activeManualPrices = useMemo(
     () => manualPrices.filter((_, idx) => manualSelectedIndices.has(idx)),
     [manualPrices, manualSelectedIndices],
   )
 
-  const isCalcDisabled = selectedIds.size === 0 && activeManualPrices.length === 0
+  const activeDefinedPrices = useMemo(
+    () =>
+      pricesQuery.data?.results.flatMap((item) =>
+        item.prices
+          .filter((p) => definedPrices.has(p.contractId))
+          .map((p) => ({
+            contractId: String(p.contractId),
+            cteId: item.cteId,
+            isOutlier: p.isOutlier,
+          })),
+      ) ?? [],
+    [pricesQuery.data, definedPrices],
+  )
+
+  const isCalcDisabled = activeDefinedPrices.length === 0 && activeManualPrices.length === 0
 
   // Calculate
   const calcMutation = useMutation({
@@ -141,26 +137,19 @@ export default function PriceAnalysisPage() {
   const handleCalculate = () => {
     calcMutation.mutate({
       quantity,
-      selected_price_ids: [...selectedIds],
-      manual_prices: activeManualPrices.length > 0 ? activeManualPrices : undefined,
+      items: [...activeDefinedPrices, ...activeManualPrices],
       method,
     })
   }
 
-  // Add to cart
   const addToCartMutation = useMutation({
     mutationFn: async () => {
       const sid = await ensureSession()
+      if (!calcResult) throw new Error('Saving before calculation')
+
       return addToCart(sid, {
-        ste_id: steId ?? null,
-        name: steQuery.data?.name ?? `СТЕ ${steId}`,
-        quantity,
-        unit_price: calcResult!.unit_price,
-        total_price: calcResult!.total_price,
-        justification_data: {
-          used_contract_ids: [...selectedIds],
-          manual_prices: activeManualPrices,
-        },
+        cteId: 'hello',
+        ...calcResult,
       })
     },
     onSuccess: () => {
@@ -189,16 +178,20 @@ export default function PriceAnalysisPage() {
       title="Анализ цен"
       tooltip="Выберите ценовые предложения и рассчитайте НМЦК выбранным методом"
     >
-      {steQuery.isLoading ? (
+      {pricesQuery.isLoading ? (
         <div style={{ textAlign: 'center', padding: 24 }}>
           <Spin />
         </div>
-      ) : steQuery.data ? (
+      ) : pricesQuery.data?.current ? (
         <Card size="small" style={{ marginBottom: 16 }}>
           <Descriptions column={isMobile ? 1 : 2} size="small">
-            <Descriptions.Item label="Название">{steQuery.data.name}</Descriptions.Item>
-            <Descriptions.Item label="Категория">{steQuery.data.category}</Descriptions.Item>
-            {Object.entries(steQuery.data.characteristics).map(([key, value]) => (
+            <Descriptions.Item label="Название">
+              {pricesQuery.data.current.cteName}
+            </Descriptions.Item>
+            <Descriptions.Item label="Категория">
+              {pricesQuery.data.current.category}
+            </Descriptions.Item>
+            {Object.entries(pricesQuery.data.current.characteristics ?? []).map(([key, value]) => (
               <Descriptions.Item key={key} label={key}>
                 {String(value)}
               </Descriptions.Item>
@@ -221,7 +214,7 @@ export default function PriceAnalysisPage() {
           <PriceTable
             prices={prices}
             manualPrices={manualPrices}
-            selectedIds={selectedIds}
+            selectedIds={definedPrices}
             onToggle={handleToggle}
             manualSelectedIndices={manualSelectedIndices}
             onToggleManual={handleToggleManual}

@@ -1,8 +1,7 @@
 import { QuestionCircleOutlined } from '@ant-design/icons'
 import { Card, Descriptions, Spin, Tag, Tooltip, Typography } from 'antd'
 
-import type { CalculateItemResponse } from '@entities/calculation'
-
+import type { CalculateItemResponse } from '@shared/contracts'
 import { formatPrice } from '@shared/lib/format'
 
 interface CalculationSummaryProps {
@@ -24,13 +23,13 @@ export function CalculationSummary({ data, loading }: CalculationSummaryProps) {
       {!loading && data && (
         <Descriptions column={1} size="small">
           <Descriptions.Item label="Цена за единицу">
-            {formatPrice(data.unit_price)}
+            {formatPrice(data.unitPrice)}
           </Descriptions.Item>
           <Descriptions.Item label="Общая стоимость">
-            {formatPrice(data.total_price)}
+            {formatPrice(data.totalPrice)}
           </Descriptions.Item>
           <Descriptions.Item label="Диапазон цен">
-            {formatPrice(data.price_range.min)} — {formatPrice(data.price_range.max)}
+            {formatPrice(data.priceRange.min)} — {formatPrice(data.priceRange.max)}
           </Descriptions.Item>
           <Descriptions.Item
             label={
@@ -42,17 +41,19 @@ export function CalculationSummary({ data, loading }: CalculationSummaryProps) {
               </span>
             }
           >
-            <Typography.Text type={data.coeff_variation > 33 ? 'danger' : undefined}>
-              {data.coeff_variation.toFixed(2)}%
+            <Typography.Text type={data.coeffVariation > 33 ? 'danger' : undefined}>
+              {data.coeffVariation.toFixed(2)}%
             </Typography.Text>
           </Descriptions.Item>
           <Descriptions.Item label="Однородность">
-            {data.is_homogeneous ? (
+            {data.isHomogeneous ? (
               <Tag variant="outlined" color="green">
                 Однородные
               </Tag>
             ) : (
-              <Tag color="red">Неоднородные</Tag>
+              <Tag variant="outlined" color="red">
+                Неоднородные
+              </Tag>
             )}
           </Descriptions.Item>
         </Descriptions>

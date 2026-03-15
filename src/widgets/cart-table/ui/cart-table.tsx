@@ -4,8 +4,7 @@ import type { ColumnsType } from 'antd/es/table'
 
 import { DeleteItemButton } from '@features/manage-cart-item'
 
-import type { CartItem } from '@entities/session'
-
+import type { SessionItem } from '@shared/contracts'
 import { formatPrice } from '@shared/lib/format'
 import { useIsMobile } from '@shared/lib/use-is-mobile'
 import { EllipsisWithTooltip } from '@shared/ui/ellipsis-with-tooltip'
@@ -13,8 +12,8 @@ import { EllipsisWithTooltip } from '@shared/ui/ellipsis-with-tooltip'
 import { CartCardList } from './cart-card-list'
 
 interface CartTableProps {
-  items: CartItem[]
-  onEdit: (item: CartItem) => void
+  items: SessionItem[]
+  onEdit: (item: SessionItem) => void
   onDelete: (itemId: string) => void
   deletingId: string | null
 }
@@ -28,7 +27,7 @@ export function CartTable({ items, onEdit, onDelete, deletingId }: CartTableProp
     )
   }
 
-  const columns: ColumnsType<CartItem> = [
+  const columns: ColumnsType<SessionItem> = [
     {
       title: 'Наименование',
       dataIndex: 'name',
@@ -64,8 +63,8 @@ export function CartTable({ items, onEdit, onDelete, deletingId }: CartTableProp
         <Space>
           <Button icon={<EditOutlined />} size="small" onClick={() => onEdit(record)} />
           <DeleteItemButton
-            onConfirm={() => onDelete(record.item_id)}
-            loading={deletingId === record.item_id}
+            onConfirm={() => onDelete(record.name)}
+            loading={deletingId === record.name}
           />
         </Space>
       ),
@@ -73,7 +72,7 @@ export function CartTable({ items, onEdit, onDelete, deletingId }: CartTableProp
   ]
 
   return (
-    <Table<CartItem>
+    <Table<SessionItem>
       columns={columns}
       dataSource={items}
       rowKey="item_id"

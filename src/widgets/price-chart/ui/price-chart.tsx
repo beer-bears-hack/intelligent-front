@@ -10,12 +10,13 @@ import {
   CartesianGrid,
 } from 'recharts'
 
-import type { PriceEntry, ManualPrice } from '@entities/price'
+import type { Price } from '@/shared/contracts'
+import type { ManualPrice } from '@/shared/contracts'
 
 import { formatPrice } from '@shared/lib/format'
 
 interface PriceChartProps {
-  prices: PriceEntry[]
+  prices: Price[]
   manualPrices: ManualPrice[]
 }
 
@@ -61,9 +62,9 @@ export function PriceChart({ prices, manualPrices }: PriceChartProps) {
       y: p.price,
       date: dayjs(p.date).format('DD.MM.YYYY'),
       source: p.source,
-      label: p.is_outlier ? 'Выброс' : 'Цена',
+      label: p.isOutlier ? 'Выброс' : 'Цена',
     }
-    if (p.is_outlier) {
+    if (p.isOutlier) {
       outlierDots.push(dot)
     } else {
       normalDots.push(dot)
@@ -75,7 +76,7 @@ export function PriceChart({ prices, manualPrices }: PriceChartProps) {
     x: todayTs,
     y: mp.price,
     date: dayjs().format('DD.MM.YYYY'),
-    source: mp.source,
+    source: mp.reason,
     label: 'Ручная',
   }))
 

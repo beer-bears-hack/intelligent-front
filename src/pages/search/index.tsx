@@ -7,14 +7,14 @@ import { SearchResultsTable } from '@widgets/search-results'
 import { SearchForm } from '@features/search-ste'
 
 import { searchSte } from '@entities/ste'
-import type { SteItem, SearchRequest } from '@entities/ste'
 
+import type { SearchResult, SearchRequest } from '@shared/contracts'
 import { getErrorMessage } from '@shared/lib/get-error-message'
 import { PageContainer } from '@shared/ui/page-container'
 
 export default function SearchPage() {
   const { notification } = App.useApp()
-  const [results, setResults] = useState<SteItem[]>([])
+  const [results, setResults] = useState<SearchResult[]>([])
 
   const mutation = useMutation({
     mutationFn: searchSte,

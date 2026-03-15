@@ -2,15 +2,14 @@ import { Button, Empty, Table, Tag } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { useNavigate } from 'react-router'
 
-import type { SteItem } from '@entities/ste'
-
+import type { SearchResult } from '@shared/contracts'
 import { useIsMobile } from '@shared/lib/use-is-mobile'
 import { EllipsisWithTooltip } from '@shared/ui/ellipsis-with-tooltip'
 
 import { SearchResultsCardList } from './search-results-card-list'
 
 interface SearchResultsTableProps {
-  data: SteItem[]
+  data: SearchResult[]
   loading: boolean
 }
 
@@ -28,7 +27,7 @@ export function SearchResultsTable({ data, loading }: SearchResultsTableProps) {
     return <SearchResultsCardList data={data} loading={loading} />
   }
 
-  const columns: ColumnsType<SteItem> = [
+  const columns: ColumnsType<SearchResult> = [
     {
       title: 'Наименование',
       dataIndex: 'name',
@@ -49,7 +48,7 @@ export function SearchResultsTable({ data, loading }: SearchResultsTableProps) {
       key: 'similarity_score',
       minWidth: 130,
       align: 'center',
-      sorter: (a, b) => a.similarity_score - b.similarity_score,
+      sorter: (a, b) => a.similarityScore - b.similarityScore,
       defaultSortOrder: 'descend',
       render: (score: number) => (
         <Tag variant="outlined" color={getScoreColor(score)}>
@@ -67,7 +66,7 @@ export function SearchResultsTable({ data, loading }: SearchResultsTableProps) {
           type="link"
           onClick={(e) => {
             e.stopPropagation()
-            void navigate(`/price-analysis/${record.ste_id}`)
+            void navigate(`/price-analysis/${record.cteId}`)
           }}
         >
           Анализ цен
@@ -77,7 +76,7 @@ export function SearchResultsTable({ data, loading }: SearchResultsTableProps) {
   ]
 
   return (
-    <Table<SteItem>
+    <Table<SearchResult>
       columns={columns}
       dataSource={data}
       rowKey="ste_id"
@@ -87,7 +86,7 @@ export function SearchResultsTable({ data, loading }: SearchResultsTableProps) {
       scroll={{ x: 'max-content' }}
       rowClassName={() => 'ant-table-row-clickable'}
       onRow={(record) => ({
-        onClick: () => void navigate(`/price-analysis/${record.ste_id}`),
+        onClick: () => void navigate(`/price-analysis/${record.cteId}`),
       })}
     />
   )
