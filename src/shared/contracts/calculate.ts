@@ -48,11 +48,9 @@ export const calculateItemResponse = z.object({
 })
 export type CalculateItemResponse = z.infer<typeof calculateItemResponse>
 
-export const saveItemRequest = calculateItemResponse
-  .omit({ effectiveSampleSize: true, noDataReason: true, outliersRemoved: true })
-  .extend({
-    cteId: z.string(),
-  })
+export const saveItemRequest = calculateItemResponse.extend({
+  cteId: z.string(),
+})
 
 export type SaveItemRequest = z.infer<typeof saveItemRequest>
 
