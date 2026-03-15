@@ -1,5 +1,5 @@
 import { QuestionCircleOutlined } from '@ant-design/icons'
-import { Card, Descriptions, Spin, Tag, Tooltip, Typography } from 'antd'
+import { Card, Descriptions, Skeleton, Tag, Tooltip, Typography } from 'antd'
 
 import type { CalculateItemResponse } from '@shared/contracts'
 import { formatPrice } from '@shared/lib/format'
@@ -12,11 +12,7 @@ interface CalculationSummaryProps {
 export function CalculationSummary({ data, loading }: CalculationSummaryProps) {
   return (
     <Card title="Результат расчёта" size="small">
-      {loading && (
-        <div style={{ textAlign: 'center', padding: 24 }}>
-          <Spin />
-        </div>
-      )}
+      {loading && <Skeleton active paragraph={{ rows: 3 }} />}
 
       {!loading && !data && <Typography.Text type="secondary">Выполните расчёт</Typography.Text>}
 

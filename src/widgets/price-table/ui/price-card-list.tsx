@@ -1,4 +1,4 @@
-import { Card, Checkbox, Empty, List, Spin, Tag, Tooltip, Typography } from 'antd'
+import { Card, Checkbox, Empty, List, Skeleton, Tag, Tooltip, Typography } from 'antd'
 import dayjs from 'dayjs'
 
 import type { Price, ManualPrice } from '@shared/contracts'
@@ -46,11 +46,7 @@ export function PriceCardList({
   loading,
 }: PriceCardListProps) {
   if (loading) {
-    return (
-      <div style={{ textAlign: 'center', padding: 48 }}>
-        <Spin />
-      </div>
-    )
+    return <Skeleton active paragraph={{ rows: 4 }} />
   }
 
   const rows: TableRow[] = [

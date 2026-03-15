@@ -1,15 +1,22 @@
-import { PlusOutlined, ProfileOutlined, QuestionCircleOutlined } from '@ant-design/icons'
+import {
+  CalculatorOutlined,
+  PlusOutlined,
+  ProfileOutlined,
+  QuestionCircleOutlined,
+} from '@ant-design/icons'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   App,
   Button,
   Card,
+  Drawer,
   Empty,
   Flex,
+  FloatButton,
   InputNumber,
   Select,
   Space,
-  Spin,
+  Skeleton,
   Table,
   Tag,
   Tooltip,
@@ -50,6 +57,7 @@ export default function PriceAnalysisPage() {
   const [manualPrices, setManualPrices] = useState<ManualPrice[]>([])
   const [manualSelectedIndices, setManualSelectedIndices] = useState<Set<number>>(new Set())
   const [manualModalOpen, setManualModalOpen] = useState(false)
+  const [drawerOpen, setDrawerOpen] = useState(false)
 
   const [quantity, setQuantity] = useState(1)
   const [method, setMethod] = useState<CalculationMethod>('comparable_market_prices')
@@ -227,20 +235,95 @@ export default function PriceAnalysisPage() {
     addToCartMutation.mutate()
   }
 
+  const calculationPanel = (
+    <>
+      <Card
+        title={
+          <span>
+            Параметры расчёта{' '}
+            <Tooltip title="Укажите количество и метод для расчёта НМЦК">
+              <QuestionCircleOutlined style={{ color: '#8c8c8c', fontSize: 14 }} />
+            </Tooltip>
+          </span>
+        }
+        size="small"
+      >
+        <Space orientation="vertical" style={{ width: '100%' }}>
+          <div>
+            <Typography.Text>Количество:</Typography.Text>
+            <InputNumber
+              min={1}
+              value={quantity}
+              onChange={(v) => setQuantity(v ?? 1)}
+              style={{ width: '100%' }}
+            />
+          </div>
+          <div>
+            <Typography.Text>Метод расчёта:</Typography.Text>
+            <Select
+              value={method}
+              onChange={setMethod}
+              style={{ width: '100%' }}
+              options={METHOD_OPTIONS}
+            />
+          </div>
+          <Tooltip
+            title={
+              isCalcDisabled
+                ? 'Недостаточно данных для расчета, необходимо не меньше трех выбранных значений, если Вам недостаточно представленных значений для аналогов, введите дополнительные значения вручную'
+                : undefined
+            }
+          >
+            <span style={{ display: 'block' }}>
+              <Button
+                type="primary"
+                block
+                onClick={handleCalculate}
+                loading={calcMutation.isPending}
+                disabled={isCalcDisabled}
+              >
+                Рассчитать
+              </Button>
+            </span>
+          </Tooltip>
+        </Space>
+      </Card>
+
+      <CalculationSummary data={calcResult} loading={calcMutation.isPending} />
+
+      <div
+        style={{
+          transition: 'opacity 0.3s ease, max-height 0.3s ease',
+          opacity: calcResult ? 1 : 0,
+          maxHeight: calcResult ? 200 : 0,
+          overflow: 'hidden',
+        }}
+      >
+        <Button
+          type="primary"
+          block
+          onClick={handleAddToCart}
+          loading={addToCartMutation.isPending}
+          icon={<ProfileOutlined />}
+        >
+          Добавить в заказ
+        </Button>
+      </div>
+    </>
+  )
+
   return (
     <PageContainer
       title="Анализ цен"
       tooltip="Выберите ценовые предложения и рассчитайте НМЦК выбранным методом"
     >
       {pricesQuery.isLoading ? (
-        <div style={{ textAlign: 'center', padding: 24 }}>
-          <Spin />
-        </div>
+        <Skeleton active paragraph={{ rows: 3 }} />
       ) : pricesQuery.data?.cteDto ? (
         <Card
           size="small"
           className="cte-info-card"
-          title={pricesQuery.data.cteDto.cteName}
+          title={<span style={{ whiteSpace: 'normal' }}>pricesQuery.data.cteDto.cteName</span>}
           extra={
             <Tag style={{ whiteSpace: 'normal', overflowWrap: 'anywhere' }}>
               {pricesQuery.data.cteDto.category}
@@ -326,83 +409,37 @@ export default function PriceAnalysisPage() {
           </Space>
         </div>
 
-        <div style={isMobile ? undefined : { flex: 1, minWidth: 280, display: 'flex' }}>
-          <Space orientation="vertical" style={{ width: '100%' }} size="middle">
-            <Card
-              title={
-                <span>
-                  Параметры расчёта{' '}
-                  <Tooltip title="Укажите количество и метод для расчёта НМЦК">
-                    <QuestionCircleOutlined style={{ color: '#8c8c8c', fontSize: 14 }} />
-                  </Tooltip>
-                </span>
-              }
-              size="small"
-            >
-              <Space orientation="vertical" style={{ width: '100%' }}>
-                <div>
-                  <Typography.Text>Количество:</Typography.Text>
-                  <InputNumber
-                    min={1}
-                    value={quantity}
-                    onChange={(v) => setQuantity(v ?? 1)}
-                    style={{ width: '100%' }}
-                  />
-                </div>
-                <div>
-                  <Typography.Text>Метод расчёта:</Typography.Text>
-                  <Select
-                    value={method}
-                    onChange={setMethod}
-                    style={{ width: '100%' }}
-                    options={METHOD_OPTIONS}
-                  />
-                </div>
-                <Tooltip
-                  title={
-                    isCalcDisabled
-                      ? 'Недостаточно данных для расчета, необходимо не меньше трех выбранных значений, если Вам недостаточно представленных значений для аналогов, введите дополнительные значения вручную'
-                      : undefined
-                  }
-                >
-                  <span style={{ display: 'block' }}>
-                    <Button
-                      type="primary"
-                      block
-                      onClick={handleCalculate}
-                      loading={calcMutation.isPending}
-                      disabled={isCalcDisabled}
-                    >
-                      Рассчитать
-                    </Button>
-                  </span>
-                </Tooltip>
-              </Space>
-            </Card>
-
-            <CalculationSummary data={calcResult} loading={calcMutation.isPending} />
-
-            <div
-              style={{
-                transition: 'opacity 0.3s ease, max-height 0.3s ease',
-                opacity: calcResult ? 1 : 0,
-                maxHeight: calcResult ? 200 : 0,
-                overflow: 'hidden',
-              }}
-            >
-              <Button
-                type="primary"
-                block
-                onClick={handleAddToCart}
-                loading={addToCartMutation.isPending}
-                icon={<ProfileOutlined />}
-              >
-                Добавить в заказ
-              </Button>
-            </div>
-          </Space>
-        </div>
+        {!isMobile && (
+          <div style={{ flex: 1, minWidth: 280, display: 'flex' }}>
+            <Space orientation="vertical" style={{ width: '100%' }} size="middle">
+              {calculationPanel}
+            </Space>
+          </div>
+        )}
       </div>
+
+      {isMobile && (
+        <>
+          <FloatButton
+            icon={<CalculatorOutlined />}
+            type="primary"
+            badge={{ dot: !!calcResult }}
+            onClick={() => setDrawerOpen(true)}
+            style={{ bottom: 80 }}
+          />
+          <Drawer
+            placement="bottom"
+            size="80vh"
+            open={drawerOpen}
+            onClose={() => setDrawerOpen(false)}
+            title="Расчёт НМЦК"
+          >
+            <Space orientation="vertical" style={{ width: '100%' }} size="middle">
+              {calculationPanel}
+            </Space>
+          </Drawer>
+        </>
+      )}
 
       <ManualPriceForm
         open={manualModalOpen}
