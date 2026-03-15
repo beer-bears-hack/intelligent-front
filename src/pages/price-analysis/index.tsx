@@ -84,6 +84,7 @@ export default function PriceAnalysisPage() {
         item.prices.map((p) => ({
           ...p,
           cteId: item.cteId,
+          name: item.name,
           similarityScore: item.similarityScore,
         })),
       ) ?? [],
@@ -165,7 +166,7 @@ export default function PriceAnalysisPage() {
     [pricesQuery.data, definedPrices],
   )
 
-  const isCalcDisabled = activeDefinedPrices.length + activeManualPrices.length < 3
+  const isCalcDisabled = activeDefinedPrices.length === 0 && activeManualPrices.length === 0
 
   // Calculate
   const calcMutation = useMutation({
@@ -294,8 +295,8 @@ export default function PriceAnalysisPage() {
       <div
         style={{
           transition: 'opacity 0.3s ease, max-height 0.3s ease',
-          opacity: calcResult ? 1 : 0,
-          maxHeight: calcResult ? 200 : 0,
+          opacity: calcResult && calcResult.totalPrice > 0 ? 1 : 0,
+          maxHeight: calcResult && calcResult.totalPrice > 0 ? 200 : 0,
           overflow: 'hidden',
         }}
       >
@@ -358,7 +359,7 @@ export default function PriceAnalysisPage() {
         }}
       >
         <div style={isMobile ? undefined : { flex: 2, minWidth: 0 }}>
-          <Flex gap={isMobile ? 8 : 16} wrap style={{ marginBottom: 0 }}>
+          <Flex gap={isMobile ? 8 : 16} wrap style={{ marginBottom: 0 }} align="center">
             <Select
               placeholder="Регион"
               style={{ minWidth: 200, flex: '1 1 auto' }}
@@ -387,6 +388,9 @@ export default function PriceAnalysisPage() {
                 { value: 12, label: '12 месяцев' },
               ]}
             />
+            <Button onClick={() => setManualModalOpen(true)} icon={<PlusOutlined />}>
+              Добавить цену вручную
+            </Button>
           </Flex>
           {region ? (
             <PriceTable
@@ -402,15 +406,19 @@ export default function PriceAnalysisPage() {
           ) : (
             <Empty description="Выберите регион для поиска цен" style={{ margin: '24px 0' }} />
           )}
-          <Space style={{ marginTop: 16 }}>
-            <Button onClick={() => setManualModalOpen(true)} icon={<PlusOutlined />}>
-              Добавить цену вручную
-            </Button>
-          </Space>
         </div>
 
         {!isMobile && (
-          <div style={{ flex: 1, minWidth: 280, display: 'flex' }}>
+          <div
+            style={{
+              flex: 1,
+              minWidth: 280,
+              display: 'flex',
+              position: 'sticky',
+              top: 16,
+              alignSelf: 'flex-start',
+            }}
+          >
             <Space orientation="vertical" style={{ width: '100%' }} size="middle">
               {calculationPanel}
             </Space>
@@ -453,6 +461,12 @@ export default function PriceAnalysisPage() {
         }
         .price-row-outlier:hover > td {
           background-color: #ffccc7 !important;
+        }
+        .price-row-manual {
+          background-color: #e6f4ff !important;
+        }
+        .price-row-manual:hover > td {
+          background-color: #bae0ff !important;
         }
         .cte-info-card .ant-card-head-wrapper {
           gap: 8px;

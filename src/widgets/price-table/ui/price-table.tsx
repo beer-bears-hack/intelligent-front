@@ -1,4 +1,5 @@
-import { Checkbox, Table, Tag, Tooltip } from 'antd'
+import { WarningOutlined } from '@ant-design/icons'
+import { Checkbox, Table, Tooltip } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import dayjs from 'dayjs'
 import { useMemo } from 'react'
@@ -13,11 +14,13 @@ import { PriceCardList } from './price-card-list'
 
 interface PriceRow extends Price {
   cteId: string
+  name: string
   similarityScore: number
 }
 
 interface TableRow {
   key: string
+  cteName: string
   price: number
   date: string | null
   source: string
@@ -53,6 +56,7 @@ export function PriceTable({
   const dataSource = useMemo<TableRow[]>(() => {
     const apiRows: TableRow[] = prices.map((p) => ({
       key: `${p.cteId}:${p.contractId}`,
+      cteName: p.name,
       price: p.price,
       date: p.date,
       source: p.source,
@@ -63,6 +67,7 @@ export function PriceTable({
 
     const manualRows: TableRow[] = manualPrices.map((mp, idx) => ({
       key: `manual:${idx}`,
+      cteName: 'Ручной ввод',
       price: mp.price,
       date: null,
       source: mp.reason,
@@ -122,6 +127,21 @@ export function PriceTable({
       },
     },
     {
+      title: 'Наименование',
+      dataIndex: 'cteName',
+      minWidth: 200,
+      render: (_: unknown, record: TableRow) => (
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+          <EllipsisWithTooltip text={record.cteName} maxWidth={300} />
+          {record.isOutlier && !record.isManual && (
+            <Tooltip title={record.reason}>
+              <WarningOutlined style={{ color: '#faad14', fontSize: 14 }} />
+            </Tooltip>
+          )}
+        </span>
+      ),
+    },
+    {
       title: 'Цена',
       dataIndex: 'price',
       minWidth: 140,
@@ -145,30 +165,6 @@ export function PriceTable({
       minWidth: 200,
       render: (text: string) => <EllipsisWithTooltip text={text} maxWidth={350} />,
     },
-    {
-      title: 'Статус',
-      dataIndex: 'isOutlier',
-      minWidth: 120,
-      render: (_: unknown, record: TableRow) => {
-        if (record.isManual) {
-          return (
-            <Tag variant="outlined" color="blue">
-              Ручная
-            </Tag>
-          )
-        }
-        if (record.isOutlier) {
-          return (
-            <Tooltip title={record.reason}>
-              <Tag variant="outlined" color="red">
-                Выброс
-              </Tag>
-            </Tooltip>
-          )
-        }
-        return null
-      },
-    },
   ]
 
   return (
@@ -178,7 +174,11 @@ export function PriceTable({
       loading={loading}
       pagination={false}
       size="small"
-      rowClassName={(record) => (record.isOutlier && !record.isManual ? 'price-row-outlier' : '')}
+      rowClassName={(record) => {
+        if (record.isOutlier && !record.isManual) return 'price-row-outlier'
+        if (record.isManual) return 'price-row-manual'
+        return ''
+      }}
       style={{ marginTop: 16 }}
       scroll={{ x: 'max-content' }}
     />

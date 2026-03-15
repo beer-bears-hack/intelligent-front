@@ -42,7 +42,9 @@ export function SearchResultsCardList({ data, loading }: SearchResultsCardListPr
               {item.category}
             </Typography.Text>
             <Tag variant="outlined" color={getScoreColor(item.similarityScore)}>
-              {(item.similarityScore * 100).toFixed(1)}%
+              {Number.isNaN(item.similarityScore)
+                ? '—'
+                : `${(item.similarityScore * 100).toFixed(1)}%`}
             </Tag>
           </div>
           <Button
