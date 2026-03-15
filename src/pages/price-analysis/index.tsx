@@ -323,7 +323,7 @@ export default function PriceAnalysisPage() {
         <Card
           size="small"
           className="cte-info-card"
-          title={<span style={{ whiteSpace: 'normal' }}>pricesQuery.data.cteDto.cteName</span>}
+          title={<span style={{ whiteSpace: 'normal' }}>{pricesQuery.data.cteDto.cteName}</span>}
           extra={
             <Tag style={{ whiteSpace: 'normal', overflowWrap: 'anywhere' }}>
               {pricesQuery.data.cteDto.category}
